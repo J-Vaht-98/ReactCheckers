@@ -2,9 +2,13 @@
   text-align: center;
 }
 :root{
-  --boardSize: 560px;
+  --boardSize: 555px;
   --oddSquareColor: #00ffff;
   --evenSquareColor: white;
+  --player1Color:red;
+  --player2Color:black;
+  --squareSize:calc(var(--boardSize)/8);
+  --btnSize:calc(var(--squareSize)/2);
 }
 
 /*************************************SQUARES*********************************/
@@ -15,13 +19,13 @@
   margin: 0 auto;
   display: grid;
   grid-gap: 0;
-  grid-template-rows: repeat(8,auto);
+  grid-template-rows: repeat(8,var(--squareSize));
   grid-auto-flow: row;
 }
 .row{
   display: grid;
   grid-gap:0;
-  grid-template-columns: repeat(8,auto);
+  grid-template-columns: repeat(8,var(--squareSize));
 }
 .game-container .row:nth-of-type(odd) .square:nth-of-type(odd){
   background-color: var(--oddSquareColor);
@@ -30,9 +34,30 @@
   background-color: var(--oddSquareColor);
 }
 .game-container .square{
-  padding: 20px;
-  font-size: 150%;
-  text-align: center;
   border: solid 1px black;
 }
-  
+.move-hint{
+  display: none;
+  margin:25% auto;
+  width: 50%;
+  height: 50%;
+  border-radius: 50%;
+}
+/*************************************BUTTONS*********************************/
+
+.button{
+  display: block;
+  margin:25% auto;
+  width: 50%;
+  height: 50%;
+  border-radius: 50%;
+}
+.button:hover{
+  opacity: 0.75;
+}
+.player-1{
+  background-color: var(--player1Color);
+}
+.player-2{
+  background-color: var(--player2Color);
+}
