@@ -1,25 +1,25 @@
-import logo from './logo.svg';
 import './App.css';
 
+
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+  
+  let tmp = 0
+  let board = new Array(8).fill(new Array(8).fill((0)))
+  return (<div class="game-container">
+      {board.map((row,rowIndex) => row.map((sqr,colIndex) =>{
+        return <Square row = {rowIndex} col = {colIndex} />
+      })
+      )}
+
+  </div>
   );
 }
+function Square(props) {
+  return ( 
+  <div className = "square" row ={props.row} col = {props.col}>
+    <div className = "move-hint"></div>
+  </div>);
+}
+
 
 export default App;
