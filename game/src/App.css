@@ -1,24 +1,38 @@
 .App {
   text-align: center;
 }
+:root{
+  --boardSize: 560px;
+  --oddSquareColor: #00ffff;
+  --evenSquareColor: white;
+}
+
+/*************************************SQUARES*********************************/
 .game-container{
-  width: 560px;
+  width: var(--boardSize);
+  height: var(--boardSize);
+  background-color: var(--evenSquareColor);
   margin: 0 auto;
   display: grid;
   grid-gap: 0;
-  grid-template-columns: repeat(8, 70px) ;
-  grid-template-rows: repeat(8, 70px);
+  grid-template-rows: repeat(8,auto);
   grid-auto-flow: row;
 }
-
+.row{
+  display: grid;
+  grid-gap:0;
+  grid-template-columns: repeat(8,auto);
+}
+.game-container .row:nth-of-type(odd) .square:nth-of-type(odd){
+  background-color: var(--oddSquareColor);
+}
+.game-container .row:nth-of-type(even) .square:nth-of-type(even){
+  background-color: var(--oddSquareColor);
+}
 .game-container .square{
-  
   padding: 20px;
   font-size: 150%;
-  background-color: #b5915f;
-  color: #000;
   text-align: center;
-  
-  background-color: aqua;
   border: solid 1px black;
 }
+  
