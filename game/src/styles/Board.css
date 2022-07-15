@@ -1,0 +1,92 @@
+/* Styles for the board, squares, buttons */
+:root{
+    --player1Color:#000000
+    --player2Color:#ff0000
+    --blackSquareColor:#000000
+}
+#board{
+    margin:5px auto;
+    margin-top: 5%;
+    display: grid;
+    grid-auto-flow: row;
+    min-width: 640px;
+    min-height: 640px;
+    max-width: 640px;
+    grid-template-columns: repeat(8,80px);
+    grid-template-rows: repeat(8,80px);
+    border: 2px solid black;
+    border-radius: 20px;
+}
+
+.game-container{
+    display: grid;
+    gap:10px;
+}
+
+.square{
+    background-color: rgba(255, 192, 203,0.1);
+    text-align: center;
+}
+
+/*button thats selected should flash*/
+.selected div{
+    background-color: #dee8e1;
+    
+}
+.black{
+    background: rgb(74, 60, 60);
+}
+.highlight{
+    background: rgb(78, 237, 237);
+}
+/* .square.is-moveable:hover{
+    background-color: rgb(65, 209, 209);
+} */
+/* .square.has-button-on-it:hover{
+    background-color: rgb(219, 73, 185);
+} */
+.button:hover{
+    opacity: 0.7;
+}
+.button{
+    margin: auto;
+    display: flex;
+    margin-top: 25%;
+    background-color: antiquewhite;
+    width: 50%;
+    height: 50%;
+    border-radius: 20px;
+}
+.clicked{
+    background-color: aquamarine;
+}
+.player-1{
+    background-color: black;
+    color: black
+}
+.player-2{
+    background-color: red;
+    color: red;
+}
+.player-1-text{
+    color: black
+}
+.player-2-text{
+    color: var(--player2Color);
+}
+.player-1.king{
+    background-color: rgb(43, 41, 41);
+    color: white;
+    align-items: center;
+    justify-content: center;
+}
+.player-2.king{
+    color: white;
+    background-color: rgb(184, 40, 69);
+    align-items: center;
+    justify-content: center;
+    
+}
+.button{
+    text-align: center;
+}
