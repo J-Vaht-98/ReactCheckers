@@ -1,3 +1,5 @@
+import { act } from "react-dom/test-utils";
+
 class Game {
     constructor(board) {
         this.playerScores = [0, 0];
@@ -54,9 +56,6 @@ class Game {
         //Check that player is moving their own button
         if (this.activePlayer !== Math.abs(movedButton)) return false;
         
-        //Get jumped over pieced
-        this.movedPath = this.calculateMovedPath();
-        console.log(this.movedPath)
         //Check for kings
         let isKinged = 1; 
         if (this.activePlayer === 1 && movedButton === 1 && to[0] === 0) {
@@ -65,33 +64,43 @@ class Game {
         if (this.activePlayer === 2 && movedButton === 2 && to[0] === 7) {
             isKinged = -1;
         }
-
+        //Get jumped over pieced
+        this.movedPath = this.calculateMovedPath();
+        
         //Move piece
         //Multiply with -1 or 1 depending on if the button is now a king
         this.board[to[0]][to[1]] = this.board[from[0]][from[1]] * isKinged;
         this.board[from[0]][from[1]] = 0;
 
         //Remove the taken piece
-        if (this.movedPath.length >= 1) {
-            this.movedPath.forEach((square) => {
-                if (
-                    Math.abs(this.board[square[0]][square[1]]) ===
-                    this.opponentPlayer
-                ) {
-                    this.board[square[0]][square[1]] = 0;
-                    this.playerScores[this.activePlayer - 1]++
-                    this.gainedExtraMove = true;
-                }
-            });
-        } else {
-            this.toggleActivePlayer();
+        
+        for(let i = 0; i < this.movedPath.length;i++){
+            
+            const square = [this.movedPath[i][0],this.movedPath[i][1]];
+            if (
+                Math.abs(this.board[square[0]][square[1]]) ===
+                this.opponentPlayer
+            ) {
+                this.board[square[0]][square[1]] = 0;
+                this.playerScores[this.activePlayer - 1]++
+                this.gainedExtraMove = true;
+                break; // only take 1 piece per jump
+            }else{
+                //for kings, because the path might be > 0 in length but not take anything
+                this.gainedExtraMove = false; 
+            }
         }
+        if(this.movedPath.length === 0) this.gainedExtraMove = false;
+            
+        if(!this.gainedExtraMove) this.toggleActivePlayer();
+        
         this.pushToMoveHistory(from, to);
         this.clearMove();
         this.checkForWin();
         return true;
     }
     init(){
+        console.log("Initializing new game")
         this.playerScores = [0, 0];
         this.board = [
             [2,0,2,0,2,0,2,0],
@@ -230,55 +239,89 @@ class Game {
 
         const board = this.board;
         const move = this.moveFrom;
-        let i, j;
-        let moves = [];
-        if (isKing) {
-            /**
-             * TODO:
-             *  [0,0] and [7,7] squares dont show up ever
-             *  Shouldnt be able to jump over more than 1 button
-             *  If a button is detected in some direction, and the square after it in 
-             *  the same direction is empty, then its a valid move.
-             */
-            for (i = 0; i < 8; i++)
-                for (j = 0; j < 8; j++) {
-                    let k = (i - move[0]) / (j - move[1]);
-                    if (
-                        (k === 1 || k === -1) &&
-                        move[0] !== i &&
-                        move[1] !== j
-                        && board[i][j] === 0
-                    ) {
-                        this.availableMoves.push([i, j]);
-                    }
-                }
+        /**
+         * TODO:
+         *  [0,0] and [7,7] squares dont show up ever --- styles problem not related to this function
+         *  Shouldnt be able to jump over more than 1 button
+         *  If a button is detected in some direction, and the square after it in 
+         *  the same direction is empty, then its a valid move.
+         *  Mandatory takes
+         *  refactor code because the valid move finding for player 1 and 2 is copy pasted
+         */
+            
+        const player = this.activePlayer
+        const opponent = this.opponentPlayer
+        const row = move[0];
+        const col = move[1];
+        
+        if(isKing || player === 1){
+            let x = 1; //depth
+            let upLeft = null ,upLeftBtn = null
+            if(row - x >= 0 && col - x >= 0){
+                upLeft = [row - x, col - x]
+                upLeftBtn = Math.abs(board[row - x][col - x])
+            }
+            let upRight = null, upRightBtn=null
+            if(row - x >= 0 && col + x < 8 ){
+                upRight = [row - x, col + x]
+                upRightBtn = Math.abs(board[row - x][col + x])
+            }
+            x = 2;
+            let moreUpLeft = null, moreUpLeftBtn = null
+            if(row - x >= 0 && col - x >= 0){
+                moreUpLeft = [row - x, col - x]
+                moreUpLeftBtn = board[row - x][col - x]
+            }
+            let moreUpRight = null, moreUpRightBtn = null
+            if( row - x >= 0 && col + x < 8 ){
+                moreUpRight = [row - x, col + x]
+                moreUpRightBtn = board[row -x][col + x]
+            }
+            
+            if(upLeft && upLeftBtn === 0 ) this.availableMoves.push(upLeft);
+            else if(upLeft && moreUpLeft && upLeftBtn === opponent && moreUpLeftBtn === 0){
+                this.availableMoves.push(moreUpLeft)
+            }
+            if(upRight && upRightBtn === 0) this.availableMoves.push(upRight);
+            else if(upRight && moreUpRight && upRightBtn === opponent && moreUpRightBtn === 0){
+                this.availableMoves.push(moreUpRight)
+            }
         }
-        if (this.activePlayer === 1) {
-            let i = move[0];
-            let j = move[1];
-            let upLeft = i - 1 >= 0 && j - 1 >= 0 ? board[i - 1][j - 1] : null;
-            let moreUpLeft = i - 2 >= 0 && j - 2 >= 0 ? board[i - 2][j - 2] : null;
-            let moreUpRight = i - 2 >= 0 && j + 2 <= 8 ? board[i - 2][j + 2] : null;
-            let upRight = i - 1 >= 0 && j + 1 <= 8 ? board[i - 1][j + 1] : null;
-
-            if (upLeft === 2 && moreUpLeft === 0)
-                this.availableMoves.push([i - 2, j - 2]);
-            if (upRight == 2 && moreUpRight === 0)
-                this.availableMoves.push([i - 2, j + 2]);
-            if (upLeft === 0) this.availableMoves.push([i - 1, j - 1]);
-            if (upRight === 0) this.availableMoves.push([i - 1, j + 1]);
-        } else if (this.activePlayer === 2) {
-            let i = move[0];
-            let j = move[1];
-            let downLeft = i + 1 <= 7 && j - 1 >= 0 ? board[i + 1][j - 1] : null;
-            let downRight = i + 1 <= 7 && j + 1 <= 7 ? board[i + 1][j + 1] : null;
-            let moreDownLeft = i + 2 <= 7 && j - 2 >= 0 ? board[i + 2][j - 2] : null;
-            let moreDownRight = i + 2 <= 7 && j + 2 <= 7 ? board[i + 2][j + 2] : null;
-            if(downLeft === 0) this.availableMoves.push([i+1,j-1])
-            if(downRight === 0) this.availableMoves.push([i+1,j+1])
-            if(downLeft === 1 && moreDownLeft === 0) this.availableMoves.push([i+2,j-2])
-            if(downRight === 1 && moreDownRight === 0) this.availableMoves.push([i+2,j+2])
+        if(isKing || player === 2){
+            let x = 1; //depth
+            let upLeft = null ,upLeftBtn = null
+            if(row + x <8 && col - x >= 0){
+                upLeft = [row + x, col - x]
+                upLeftBtn = Math.abs(board[row + x][col - x])
+            }
+            let upRight = null, upRightBtn=null
+            if(row + x<8 && col + x < 8 ){
+                upRight = [row + x, col + x]
+                upRightBtn = Math.abs(board[row + x][col + x])
+            }
+            x = 2;
+            let moreUpLeft = null, moreUpLeftBtn = null
+            if(row + x < 8 && col - x >= 0){
+                moreUpLeft = [row + x, col - x]
+                moreUpLeftBtn = board[row + x][col - x]
+            }
+            let moreUpRight = null, moreUpRightBtn = null
+            if( row + x < 8 && col + x < 8 ){
+                moreUpRight = [row + x, col + x]
+                moreUpRightBtn = board[row +x][col + x]
+            }
+            
+            if(upLeft && upLeftBtn === 0 ) this.availableMoves.push(upLeft);
+            else if(upLeft && moreUpLeft && upLeftBtn === opponent && moreUpLeftBtn === 0){
+                this.availableMoves.push(moreUpLeft)
+            }
+            if(upRight && upRightBtn === 0) this.availableMoves.push(upRight);
+            else if(upRight && moreUpRight && upRightBtn === opponent && moreUpRightBtn === 0){
+                this.availableMoves.push(moreUpRight)
+            }
         }
+                      
+  
     }
     undo() {
         const move = this.moveHistory.pop();
@@ -294,6 +337,9 @@ class Game {
         this.moveTo = [];
         this.availableMoves = [];
         this.movedPath = [];
+    }
+    forfeit(){
+        this.isWinner = this.opponentPlayer
     }
 }
 

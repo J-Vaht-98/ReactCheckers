@@ -41,12 +41,17 @@
 }
 @keyframes flashing {
     from{
-        /* color:rgba(0,0,0,1) */
         opacity: 1;
         
     }
     to {
-        /* color: rgba(0,0,0,0.3); */
         opacity: 0.3;
     }
+}
+.play-again-btn{
+    border: 2px solid black;
+    border-radius: 20px;
+    margin-top: 4px;
+    color: white;
+    font-weight: bolder;
 }

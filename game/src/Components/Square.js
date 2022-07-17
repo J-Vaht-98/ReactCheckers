@@ -1,7 +1,7 @@
 import React from 'react';
 
 
-function Square({row,col,gameRef,handleClick}) {
+function Square({row,col,gameRef,handleClick,isRotated}) {
     const game = gameRef.current
     let isSelected = row == game.moveFrom[0] && col == game.moveFrom[1];
     let isHighlighted = false;
@@ -30,6 +30,7 @@ function Square({row,col,gameRef,handleClick}) {
         button ? className += " has-button-on-it": className += " is-moveable"
     }
     
+    
     const squareHandleClick = (e) =>{
         //Conditionally emit this event only if black square with no button
         if(!button && ((row % 2 === 0 && col % 2 === 0) || (row % 2 === 1 && col % 2 === 1)))
@@ -41,13 +42,14 @@ function Square({row,col,gameRef,handleClick}) {
         if(game.activePlayer === Math.abs(button))
             handleClick(e,"button")
     }
-    
+   
     return ( 
     <div onClick={squareHandleClick} row = {row} col={col} id={`${row}-${col}`}  className={className}>
+        {/* {row}-{col} */}
         {button === 1 && <div onClick={e => buttonHandleClick(e)} key = {row + " " + col} row={row} col={col} className='player-1 button' />}
         {button === 2 && <div onClick={e => buttonHandleClick(e)} key = {row + "+" + col} row={row} col={col} className='player-2 button' />}
-        {button === -1 && <div onClick={e => buttonHandleClick(e)} key = {row + "+" + col} row={row} col={col} className='player-1 button king'>👑</div>}
-        {button === -2 && <div onClick={e => buttonHandleClick(e)} key = {row + "+" + col} row={row} col={col} className='player-2 button king'>👑</div>}
+        {button === -1 && <div onClick={e => buttonHandleClick(e)} key = {row + "+" + col} row={row} col={col} className={'player-1 button king '}>👑</div>}
+        {button === -2 && <div onClick={e => buttonHandleClick(e)} key = {row + "+" + col} row={row} col={col} className={'player-2 button king '}>👑</div>}
     </div> 
     );
 }

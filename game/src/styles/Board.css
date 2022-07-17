@@ -16,11 +16,46 @@
     grid-template-rows: repeat(8,80px);
     border: 2px solid black;
     border-radius: 20px;
+
+    
+}
+.rotate-180{
+    transform: rotateX(180deg);
+}
+.rotate-0{
+    transform: none;
 }
 
+.winAnimation{
+    animation-name: winAnimation;
+    animation-duration: 2s;
+    animation-iteration-count: 1;
+}
+@keyframes winAnimation {
+    from{
+        transform: rotateX(0deg);
+    }
+    to{
+        transform: rotateX(360deg);
+    }
+}
 .game-container{
     display: grid;
-    gap:10px;
+    width: fit-content;
+    margin: 5px auto;
+}
+.rotation-button{
+    border: 2px solid black;
+    border-radius: 20px;
+    margin-top: 4px;
+    color: white;
+    font-weight: bolder;
+}
+.rotation-button-player-1{
+    background: linear-gradient(90deg,black 10%,red 60%,black 90%);
+}
+.rotation-button-player-2{
+    background: linear-gradient(90deg,red 5%,black 50%,red 95%);
 }
 
 .square{
@@ -89,4 +124,36 @@
 }
 .button{
     text-align: center;
+}
+.forfeit-btn{
+    width: 20%;
+    margin:15px;
+    background: red;
+    color: rgba(255, 255, 255, 0.66);
+    font-weight:bolder;
+    
+}
+.forfeit-btn:hover{
+    color: rgb(255, 255, 255);
+}
+.forfeit-modal{
+    margin-top: 15px;
+    border:solid 1px black;
+    display: grid;
+    grid-template-columns: 2;
+    grid-auto-flow: column;
+    border-radius: 10px;
+}
+.forfeit-modal button{
+    margin: 15px auto;
+    width: 70%;
+    color: white;
+    font: bolder;
+    font-size:large;
+}
+.forfeit-modal .cancel-btn{
+    background: linear-gradient(90deg,red,darkred);
+}
+.forfeit-modal .confirm-btn{
+    background: linear-gradient(90deg,green, lightgreen);
 }
