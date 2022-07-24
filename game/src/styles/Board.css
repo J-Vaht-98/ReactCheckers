@@ -110,14 +110,14 @@
     color: var(--player2Color);
 }
 .player-1.king{
-    background-color: rgb(43, 41, 41);
+    /* background-color: rgb(43, 41, 41); */
     color: white;
     align-items: center;
     justify-content: center;
 }
 .player-2.king{
     color: white;
-    background-color: rgb(184, 40, 69);
+    /* background-color: rgb(184, 40, 69); */
     align-items: center;
     justify-content: center;
     

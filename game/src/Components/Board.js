@@ -2,6 +2,7 @@ import Square from "./Square";
 import React, { useState, useRef, useEffect, createRef } from "react";
 import "../styles/Board.css";
 import GameInfo from "./GameInfo";
+import cloneDeep from 'lodash/cloneDeep'
 
 function Board({ gameRef }) {
     const [moveFrom, setMoveFrom] = useState([]);
@@ -13,14 +14,16 @@ function Board({ gameRef }) {
     if (!gameRef) return <></>;
     if (game.current === undefined) return <></>;
     const handleClick = (e, type) => {
-        const move = [
-            parseInt(e.target.attributes.row.value),
-            parseInt(e.target.attributes.col.value),
-        ];
+        const row = parseInt(e.target.attributes.row.value)
+        const col = parseInt(e.target.attributes.col.value)
 
-        setMoveFrom(game.current.moveFrom);
-        game.current.setMove(move);
-        setBoardState(game.current.board);
+        game.current.setMove(row,col);
+        if(game.current.hasMoveFrom())
+            setMoveFrom(game.current.moveFrom)
+        //need to use a deep clone for react to re-render
+        //otherwise it makes a shallow copy and react doesnt detect the changes
+        //https://stackoverflow.com/questions/48710797/how-do-i-deep-clone-an-object-in-react
+        setBoardState(cloneDeep(game.current.board)) 
     };
     const rotation = isRotated ? " rotate-180" : " rotate-0";
     const rotationButtonClass = isRotated
@@ -58,18 +61,7 @@ function Board({ gameRef }) {
                 Flip board
             </button>}
             <GameInfo gameRef={game} newGameHandler={()=>{game.current.init(); setIsForfeit(false); setShowForfeitConfirm(false); setBoardState(game.current.board)}}/>
-            {!isWinner && !isForfeit && !showForfeitConfirm && <button
-                className='forfeit-btn'
-                onClick={()=>{setShowForfeitConfirm(true)}
-                }>
-                Forfeit Game
-            </button>}
-            {showForfeitConfirm && !isWinner && 
-             <div className="forfeit-modal">
-                <button className='confirm-btn'onClick={()=> {game.current.forfeit(); setIsForfeit(true)}}>Confirm</button>
-                <button className='cancel-btn'onClick={()=>{setIsForfeit(false); setShowForfeitConfirm(false)}}>Cancel</button>
-             </div>
-            }
+           
 
         </div>
     );

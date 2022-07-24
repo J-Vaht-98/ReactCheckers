@@ -1,149 +1,322 @@
+import * as utils from './Utils' 
 class Game {
+    /**
+     * 
+     * @param {
+     *  2DArray} board - the game state, to which the game initializes to
+
+     */
     constructor(board) {
         this.playerScores = [0, 0];
         this.board = board;
         this.activePlayer = 1;
         this.opponentPlayer = 2;
-        this.takenPiece = [];
+        
+        
         this.moveFrom = [];
-        this.moveTo = [];
         this.movedPath = [];
-        this.gainedExtraMove = false;
-        this.isForcedMove = false;
-
+        this.availableMoves = [];
+        this.forcedMoves = this.calculateForcedMoves()
+        
         this.isWinner = false;
         this.moveHistory = [];
         this.moveNr = this.moveHistory.length;
-        this.availableMoves = [];
     }
-    makeMove() {
-        const from = this.moveFrom;
-        const to = this.moveTo;
-        const movedButton = this.board[from[0]][from[1]];
-
-        if (this.isWinner) return false;
-        if (from.length === 0 || to.length === 0) return false;
-
-        //moveTo === moveFrom ?
-        if (from[0] === to[0] && from[1] === to[1]) return false;
-
-        //moveFrom is a button
-        if (this.board[from[0]][from[1]] === 0) return false;
-
-        //moveTo is an empty square
-        if (this.board[to[0]][to[1]]) return false;
-
-        //check if move is in available moves
-        let isAvailable = false;
-        this.availableMoves.forEach((move) => {
-            if (move[0] === to[0] && move[1] === to[1]) isAvailable = true;
-        });
-
-        if (!isAvailable) return false;
-
-        //check if move is diagonal or taking a piece
-        const k = (to[0] - from[0]) / Math.abs(to[1] - from[1]);
-        // --> y=kx + b;  Math.abs because the horizontal direction doesnt matter
-        // k is -1 for player 1 and 1 for player 2
-
-        //Check if direction is correct (only applies for regular button)
-        if (movedButton === 1 && this.activePlayer === 1 && k !== -1)
-            return false;
-        if (movedButton === 2 && this.activePlayer === 2 && k !== 1)
-            return false;
-
-        //Check that player is moving their own button
-        if (this.activePlayer !== Math.abs(movedButton)) return false;
-
-        //Check for kings
-        let isKinged = 1;
-        if (this.activePlayer === 1 && movedButton === 1 && to[0] === 0) {
-            isKinged = -1;
+    hasMoveFrom(){
+        return this.moveFrom.length > 0
+    }
+    hasForcedMoves(){
+        return this.forcedMoves.length > 0
+    }
+    setMove(row,col){
+        if(this.isWinner) return false
+        const clickedElement = Math.abs(this.board[row][col])
+        const hasMoveFrom = this.hasMoveFrom()
+        const hasForcedMoves = this.hasForcedMoves()
+        //clicked square ?
+        if(clickedElement === 0 && hasMoveFrom){
+            this.makeMove(this.moveFrom,[row,col])
         }
-        if (this.activePlayer === 2 && movedButton === 2 && to[0] === 7) {
-            isKinged = -1;
-        }
-        //Get jumped over pieced
-        this.movedPath = this.calculateMovedPath();
-
-        //Move piece
-        //Multiply with -1 or 1 depending on if the button is now a king
-        this.board[to[0]][to[1]] = this.board[from[0]][from[1]] * isKinged;
-        this.board[from[0]][from[1]] = 0;
-
-        //Remove the taken piece
-
-        for (let i = 0; i < this.movedPath.length; i++) {
-            const square = [this.movedPath[i][0], this.movedPath[i][1]];
-            if (
-                Math.abs(this.board[square[0]][square[1]]) ===
-                this.opponentPlayer
-            ) {
-                this.board[square[0]][square[1]] = 0;
-                this.playerScores[this.activePlayer - 1]++;
-                break; // only take 1 piece per jump
+        //clicked button ?
+        else if(clickedElement === this.activePlayer){
+            if(!hasForcedMoves){
+                if(!hasMoveFrom){
+                    this.moveFrom = [row,col]
+                    this.availableMoves = this.calculateMoves()
+                }
+                else if(hasMoveFrom && this.moveFrom[0] === row && this.moveFrom[1] === col){
+                    this.moveFrom = [];
+                    this.availableMoves = [];
+                }
+                else if(hasMoveFrom && clickedElement === this.activePlayer){
+                    this.moveFrom = [row,col]
+                    this.availableMoves = this.calculateMoves()
+                }
+            }
+            else{
+                //check if clicked button is in forced moves
+                const isInForced = this.isBtnInForcedMoves(row,col) //returns an index of the forcedMoves array or false
+                if(isInForced && !hasMoveFrom){
+                    this.moveFrom = [row,col]
+                    //get the to square values
+                    let vals = []
+                    this.forcedMoves.forEach(move=>{
+                        if(move.from[0] === row && move.from[1] === col){
+                            vals.push(move.to)
+                        }
+                    })
+                    this.availableMoves = vals
+                }
+                else if(isInForced && row === this.moveFrom[0] && col === this.moveFrom[1]){
+                    this.moveFrom = []
+                    this.availableMoves = []
+                }
+                else if(isInForced && hasMoveFrom && clickedElement === this.activePlayer){
+                    this.moveFrom = [row,col]
+                    //get the to square values
+                    let vals = []
+                    this.forcedMoves.forEach(move=>{
+                        if(move.from[0] === row && move.from[1] === col){
+                            vals.push(move.to)
+                        }
+                    })
+                    this.availableMoves = vals
+                }
             }
         }
-
-        //Check for double if player can take multiple pieces
-        this.getAvailableMoves(this.moveTo);
-        if (!this.isForcedMove) {
-            this.toggleActivePlayer();
+    }
+    isBtnInForcedMoves(row,col){
+        let indices = []
+        for(let i in this.forcedMoves){
+            const moveFrom = this.forcedMoves[i].from
+            if(row === moveFrom[0] && col === moveFrom[1])
+                indices.push(i)
         }
+        return indices.length > 0
+    }
+    makeMove(from,to){
+        if(this.isWinner) return false
+        const fromRow = from[0]
+        const fromCol = from[1]
+        const toRow = to[0]
+        const toCol = to[1]
+        const button = this.board[fromRow][fromCol]
+        /**
+         * Stuff like moving on top of a button, moving to a white square
+         * is handled in the square component via click handlers
+         * so in case of issues look in there
+         **/
+        const isInAvailableMoves = ()=>{
+            for(let i in this.availableMoves){
+                const move = this.availableMoves[i]
+                console.log(move)
+                if(move[0] === toRow && move[1] === toCol)
+                    return true
+            }
+            return false
+        }
+        console.log(isInAvailableMoves())
+        if(!isInAvailableMoves()) return false
+        this.board[toRow][toCol] = this.board[fromRow][fromCol]
+        this.board[fromRow][fromCol] = 0
+        
+        const movedPath = this.calculateMovedPath(this.moveFrom,[toRow,toCol]);
+        let wasTake = false
+        movedPath.forEach(square =>{
+            if(Math.abs(this.board[square[0]][square[1]]) === this.opponentPlayer){
+                wasTake = true
+                this.board[square[0]][square[1]] = 0
+            }
+        })
+        
+        
+        //check for king
+        if(toRow === this.board.length - 1 && this.activePlayer === 2 && button > 0){
+            this.board[toRow][toCol] = this.board[toRow][toCol]*-1
+        }
+        else if(toRow === 0 && this.activePlayer === 1 && button > 0){
+            this.board[toRow][toCol] = this.board[toRow][toCol]*-1
+        }
+        //check for double take
+        const isDoubleTake = this.calculateTakes([toRow,toCol]).length > 0
+        
+        //toggle the player, it gets toggled back immediately so the active player doesnt change in practice
+        if(isDoubleTake && wasTake)
+            this.activePlayer = this.opponentPlayer
+        this.toggleActivePlayer()
+        this.checkWin()
+        this.clearMove()
+    }
+    clearMove(){
+        this.availableMoves = []
+        this.moveFrom = []
+    }
+    checkWin(){
+        /**
+         * It is a win if:
+         *      there is a forfeit
+         *      there is no buttons left for a player
+         *      there are buttons left but they cant move for one player
+         */
+        //count player buttons
+        let player1Btns = utils.countPlayerBtns(this.board,1)
+        let player2Btns = utils.countPlayerBtns(this.board,2)
+        if(player1Btns === 0){
+            this.isWinner = 2
+            return true
+        }
+        if(player2Btns === 0){
+            this.isWinner = 1
+            return true
+        }
+        //check if each player has a move
+        let player1HasMove = false
+        let player2HasMove = false
+        const board = this.board
+        for(let row in board)
+            for(let col in board[row]){
+                row = parseInt(row)
+                col = parseInt(col)
+                if(!player1HasMove && Math.abs(board[row][col] === 1)){
+                    if(this.calculateTakes([row,col]).length > 0 || this.calculateMoves([row,col]).length > 0){
+                        player1HasMove = true
+                    }
+                }
+                else if(!player2HasMove && Math.abs(board[row][col] === 2)){
+                    if(this.calculateTakes([row,col]).length > 0 || this.calculateMoves([row,col]).length > 0){
+                        player2HasMove = true
+                    }
+                }
+            }
+        if(!player1HasMove){
+            this.isWinner = 2
+            return true
+        }
+        if(!player2HasMove){
+            this.isWinner = 1
+            return true
+        }
+    }
+    forfeit(){
+        this.isWinner = this.opponentPlayer
+    }
+    toggleActivePlayer() {
+        if(this.activePlayer === 1){
+            this.opponentPlayer = this.activePlayer
+            this.activePlayer = 2
+            this.forcedMoves = this.calculateForcedMoves()
+        }
+        else{
+            this.opponentPlayer = this.activePlayer
+            this.activePlayer = 1
+            this.forcedMoves = this.calculateForcedMoves()
+        }
+    }
+    calculateTakes(from){
+        //Checks if a piece can take 
+        console.log(from)
+        const row = from[0]
+        const col = from[1]
+        const player = this.activePlayer
+        const isKing = this.board[row][col] < 0
+        const board = this.board
+        const opponent = this.opponentPlayer
+        let moves = []
+        if(isKing || player === 1){
+            if(row - 2 >= 0 && col + 2 < 8 && Math.abs(board[row -1][col +1]) === opponent && board[row-2][col+2] === 0)
+                moves.push([row-2,col+2])
+            if(row - 2 >= 0 && col - 2 > 0 && Math.abs(board[row -1][col -1]) === opponent && board[row-2][col - 2] === 0)
+                moves.push([row-2,col-2])
+        }
+        if(isKing || player === 2){
+            if(row + 2 < 8 && col + 2 < 8 && Math.abs(board[row+1][col+1]) === opponent && board[row+2][col + 2] === 0)
+                moves.push([row + 2,col +2])
+            if(row + 2 < 8 && col - 2 >=0 && Math.abs(board[row+1][col-1]) === opponent && board[row+2][col - 2] === 0)
+                moves.push([row + 2,col -2])
+        }
+        return moves
+    }
+    calculateMoves(from = null){
+        /*Gets the empty squares you can move to */
+        const board = this.board
+        const player = this.activePlayer
+        const opponent = this.opponentPlayer
+        let row = this.moveFrom[0];
+        let col = this.moveFrom[1];
+        if(from !== null){
+            row = from[0]
+            col = from[1]
+        }
+        const isKing = board[row][col] < 0
+        const moves = []
+        
+        if(player === 1 || isKing){
+            if(row - 1 >= 0 && col - 1 >= 0 && board[row - 1][col - 1] === 0)
+                moves.push([row-1,col-1])
+            if(row - 1 >= 0 && col + 1 < 8 && board[row -1][col +1]=== 0)
+                moves.push([row-1,col+1])
+            //TODO for future: toggle wheter taking is forced
+            // if(row - 2 >= 0 && col + 2 < 8 && Math.abs(board[row -1][col +1]) === opponent && board[row-2][col+2] === 0)
+            //     moves.push([row-2,col+2])
+            // if(row - 2 >= 0 && col - 2 > 0 && Math.abs(board[row -1][col -1]) === opponent && board[row-2][col - 2] === 0)
+            //     moves.push([row-2,col-2])
 
-        this.pushToMoveHistory(from, to);
-        this.clearMove();
-        this.checkForWin();
-        return true;
-    }
-    init() {
-        console.log("Initializing new game");
-        this.playerScores = [0, 0];
-        this.board = [
-            [2, 0, 2, 0, 2, 0, 2, 0],
-            [0, 2, 0, 2, 0, 2, 0, 2],
-            [2, 0, 2, 0, 2, 0, 2, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 1, 0, 1, 0, 1, 0, 1],
-            [1, 0, 1, 0, 1, 0, 1, 0],
-            [0, 1, 0, 1, 0, 1, 0, 1],
-        ];
-        this.activePlayer = 1;
-        this.opponentPlayer = 2;
-        this.takenPiece = [];
-        this.moveFrom = [];
-        this.moveTo = [];
-        this.movedPath = [];
-        this.gainedExtraMove = false;
 
-        this.isWinner = false;
-        this.moveHistory = [];
-        this.moveNr = this.moveHistory.length;
-        this.availableMoves = [];
+        }
+        if(player === 2 || isKing){
+            if(row + 1 < 8 && col - 1 >= 0 && board[row+1][col-1] === 0){
+                moves.push([row +1,col-1])
+            }
+            if(row + 1 < 8 && col + 1 < 8 && board[row + 1][col + 1] === 0)
+                moves.push([row + 1,col + 1])
+            // if(row + 2 < 8 && col + 2 < 8 && Math.abs(board[row+1][col+1]) === opponent && board[row+2][col + 2] === 0)
+            //     moves.push([row + 2,col +2])
+            // if(row + 2 < 8 && col - 2 >=0 && Math.abs(board[row+1][col-1]) === opponent && board[row+2][col - 2] === 0)
+            //     moves.push([row + 2,col -2])
+        }
+        return moves
+        
     }
-    checkForWin() {
-        //Check if either player has no buttons left
-        let player1Win = true;
-        let player2Win = true;
-        this.board.forEach((row) => {
-            row.forEach((square) => {
-                square = Math.abs(square);
-                if (square === 1) player2Win = false;
-                if (square === 2) player1Win = false;
-            });
-        });
-        if (player1Win) this.isWinner = 1;
-        else if (player2Win) this.isWinner = 2;
+    calculateForcedMoves(){
+        const board = this.board
+        const player = this.activePlayer
+        const opponent = this.opponentPlayer
+        let forcedMoves = []
+        /*Iterate over each of this players buttons and check if there are takes
+         *if so add them to forced moves, so you can only choose these buttons
+         *on this players turn */
+        let i,j
+        for(let i=0; i < board.length;i++){
+            for(let j=0; j<board[i].length;j++){
+                const isKing = board[i][j] < 0
+                if(Math.abs(board[i][j]) === player || player < 0){
+                    if( isKing || player === 1){
+                        if(i >= 2 && j >= 2 && Math.abs(board[i-1][j-1])=== opponent && board[i-2][j-2] === 0)
+                        forcedMoves.push({from:[i,j],to:[i-2,j-2]})
+                        if(i >= 2 && j <= 5 && Math.abs(board[i-1][j+1])=== opponent && board[i-2][j+2] === 0)
+                        forcedMoves.push({from:[i,j],to:[i-2,j+2]})
+                    }
+                    if(isKing || player === 2){
+                        if(i <= 5 && j <= 5 && Math.abs(board[i+1][j+1])=== opponent && board[i+2][j+2] === 0)
+                            forcedMoves.push({from:[i,j],to:[i+2,j+2]})
+                        if(i <= 5 && j >= 2 && Math.abs(board[i+1][j-1])===opponent && board[i+2][j-2] === 0)
+                            forcedMoves.push({from:[i,j],to:[i+2,j-2]})
+                    }
+                }
+                
+            }
+        }
+        // this.forcedMoves = forcedMoves;
+        return forcedMoves
     }
-    calculateMovedPath() {
+    calculateMovedPath(from,to) {
         //Gets the moved path aka if any pieces were jumped over
         //Excludes the start and stop squares
         // Returns an array of jumped over squares, or an empty one if none were jumped
-        const startX = this.moveFrom[1];
-        const startY = this.moveFrom[0];
-        const stopX = this.moveTo[1];
-        const stopY = this.moveTo[0];
+        const startX = from[1];
+        const startY = from[0];
+        const stopX = to[1];
+        const stopY = to[0];
 
         let vertDirection = stopY - startY;
         let horDirection = stopX - startX;
@@ -191,186 +364,6 @@ class Game {
             }
         }
         return path;
-    }
-    getTakenPiece() {
-        if (this.movedPath.length === 0) this.takenPiece = [];
-        else {
-            this.movedPath.forEach((square) => {
-                if (
-                    Math.abs(this.board[square[0]][square[1]]) ===
-                    Math.abs(this.opponentPlayer)
-                ) {
-                    this.takenPiece = [];
-                }
-            });
-        }
-        this.takenPiece = [];
-    }
-    setMove(move) {
-        const targetValue = this.board[move[0]][move[1]];
-        if (this.activePlayer === Math.abs(targetValue)) {
-            this.availableMoves = [];
-            this.moveFrom = move;
-            this.getAvailableMoves(move);
-        } else if (targetValue === 0 && this.moveFrom.length > 0) {
-            this.moveTo = move;
-            this.makeMove();
-        } else {
-            this.moveFrom = [];
-            this.moveTo = [];
-        }
-    }
-    toggleActivePlayer() {
-        this.gainedExtraMove = false;
-        this.activePlayer === 1
-            ? (this.activePlayer = 2)
-            : (this.activePlayer = 1);
-        this.opponentPlayer === 2
-            ? (this.opponentPlayer = 1)
-            : (this.opponentPlayer = 2);
-    }
-    getAvailableMoves(move) {
-        /**
-         * TODO:
-         *  [0,0] and [7,7] squares dont show up ever --- styles problem not related to this function
-         *  Shouldnt be able to jump over more than 1 button
-         *  If a button is detected in some direction, and the square after it in
-         *  the same direction is empty, then its a valid move.
-         *  Mandatory takes
-         *  refactor code because the valid move finding for player 1 and 2 is copy pasted
-         */
-        const board = this.board;
-        const player = this.activePlayer;
-        const opponent = this.opponentPlayer;
-        const row = move[0];
-        const col = move[1];
-        const button = this.board[row][col];
-        const isKing = button < 0;
-
-        let forcedMoves = [];
-
-        if (isKing || player === 1) {
-            let x = 1; //depth
-            let upLeft = null,
-                upLeftBtn = null;
-            if (row - x >= 0 && col - x >= 0) {
-                upLeft = [row - x, col - x];
-                upLeftBtn = Math.abs(board[row - x][col - x]);
-            }
-            let upRight = null,
-                upRightBtn = null;
-            if (row - x >= 0 && col + x < 8) {
-                upRight = [row - x, col + x];
-                upRightBtn = Math.abs(board[row - x][col + x]);
-            }
-            x = 2;
-            let moreUpLeft = null,
-                moreUpLeftBtn = null;
-            if (row - x >= 0 && col - x >= 0) {
-                moreUpLeft = [row - x, col - x];
-                moreUpLeftBtn = board[row - x][col - x];
-            }
-            let moreUpRight = null,
-                moreUpRightBtn = null;
-            if (row - x >= 0 && col + x < 8) {
-                moreUpRight = [row - x, col + x];
-                moreUpRightBtn = board[row - x][col + x];
-            }
-
-            if (upLeft && upLeftBtn === 0) this.availableMoves.push(upLeft);
-            else if (
-                upLeft &&
-                moreUpLeft &&
-                upLeftBtn === opponent &&
-                moreUpLeftBtn === 0
-            ) {
-                this.availableMoves.push(moreUpLeft);
-                forcedMoves.push(moreUpLeft);
-            }
-            if (upRight && upRightBtn === 0) this.availableMoves.push(upRight);
-            else if (
-                upRight &&
-                moreUpRight &&
-                upRightBtn === opponent &&
-                moreUpRightBtn === 0
-            ) {
-                this.availableMoves.push(moreUpRight);
-                forcedMoves.push(moreUpRight);
-            }
-        }
-        if (isKing || player === 2) {
-            let x = 1; //depth
-            let upLeft = null,
-                upLeftBtn = null;
-            if (row + x < 8 && col - x >= 0) {
-                upLeft = [row + x, col - x];
-                upLeftBtn = Math.abs(board[row + x][col - x]);
-            }
-            let upRight = null,
-                upRightBtn = null;
-            if (row + x < 8 && col + x < 8) {
-                upRight = [row + x, col + x];
-                upRightBtn = Math.abs(board[row + x][col + x]);
-            }
-            x = 2;
-            let moreUpLeft = null,
-                moreUpLeftBtn = null;
-            if (row + x < 8 && col - x >= 0) {
-                moreUpLeft = [row + x, col - x];
-                moreUpLeftBtn = board[row + x][col - x];
-            }
-            let moreUpRight = null,
-                moreUpRightBtn = null;
-            if (row + x < 8 && col + x < 8) {
-                moreUpRight = [row + x, col + x];
-                moreUpRightBtn = board[row + x][col + x];
-            }
-
-            if (upLeft && upLeftBtn === 0) this.availableMoves.push(upLeft);
-            else if (
-                upLeft &&
-                moreUpLeft &&
-                upLeftBtn === opponent &&
-                moreUpLeftBtn === 0
-            ) {
-                this.availableMoves.push(moreUpLeft);
-                forcedMoves.push(moreUpLeft);
-            }
-            if (upRight && upRightBtn === 0) this.availableMoves.push(upRight);
-            else if (
-                upRight &&
-                moreUpRight &&
-                upRightBtn === opponent &&
-                moreUpRightBtn === 0
-            ) {
-                this.availableMoves.push(moreUpRight);
-                forcedMoves.push(moreUpRight);
-            }
-        }
-        //if there are takes, they are forced
-        if (forcedMoves.length > 0) {
-            this.availableMoves = forcedMoves;
-            this.isForcedMove = true;
-        }
-        this.isForcedMove = false;
-    }
-    undo() {
-        const move = this.moveHistory.pop();
-        const to = move.to;
-        const from = move.from;
-        this.makeMove(from, to);
-    }
-    pushToMoveHistory(from, to) {
-        this.moveHistory.push({ from: from, to: to });
-    }
-    clearMove() {
-        this.moveFrom = [];
-        this.moveTo = [];
-        this.availableMoves = [];
-        this.movedPath = [];
-    }
-    forfeit() {
-        this.isWinner = this.opponentPlayer;
     }
 }
 

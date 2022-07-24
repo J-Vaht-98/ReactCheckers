@@ -1,9 +1,9 @@
 import Board from './Components/Board'
 import './App.css'
-import {useRef, useState} from 'react'
+import {useEffect, useRef, useState} from 'react'
 import Game from './Game/Game'
 function App() {
-  const [newGame, setNewGame] = useState(false);
+  const [forfeit, setForfeit] = useState(false);
   /**
    *  Gamestate: 
    *    0 - empty square
@@ -23,20 +23,22 @@ function App() {
     [0,1,0,1,0,1,0,1],
   ]
   const gameState2 = [ //this just a dummy gamestate for debugging
+    // [0,0,0,0,0,0,0,0],
+    [2,0,2,0,0,0,2,0],
+    [0,1,0,0,0,2,0,0],
     [0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0],
+    [0,0,0,0,2,0,0,0],
+    [0,0,0,0,0,1,0,0],
     [0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-
   ]
+  
   const game = useRef(new Game(gameState));
+ 
   return ( <>
-      <Board gameRef={game} newGame={newGame}/>
-      
+      <Board gameRef={game} />
+      <button onClick={()=>{game.current.forfeit(); setForfeit(true)}}>Forfeit game</button>
     </>
   );
 }
