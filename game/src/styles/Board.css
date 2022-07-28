@@ -61,15 +61,29 @@
 .square{
     background-color: rgba(255, 192, 203,0.1);
     text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-
+.bottom-right-corner-square{
+    border-bottom-right-radius: 18px;
+}
+.top-left-corner-square{
+    border-top-left-radius: 18px;
+}
 /*button thats selected should flash*/
 .selected div{
     background-color: #dee8e1;
     
+    
 }
 .black{
     background: rgb(74, 60, 60);
+}
+.button.highlight{
+    opacity: 0.5;
+    width: 25%;
+    height: 25%;
 }
 .highlight{
     background: rgb(78, 237, 237);
@@ -85,9 +99,9 @@
 }
 .button{
     margin: auto;
+    /* margin-top: 25%; */
+    /* background-color: antiquewhite; */
     display: flex;
-    margin-top: 25%;
-    background-color: antiquewhite;
     width: 50%;
     height: 50%;
     border-radius: 20px;
