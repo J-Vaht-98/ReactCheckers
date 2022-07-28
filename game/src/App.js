@@ -41,7 +41,7 @@ function reducer(state, action){
     case 'undo':
       return handleUndo(state) //not properly implemented
     case 'redo':
-      return handleRedo(state) //not properly implemented
+      return handleRedo(state) 
     
     default:
       throw new Error("Reducer action type is not defined")
@@ -85,6 +85,7 @@ function App() {
     <>
       <Board game={game} dispatchClick={dispatch} />
       <GameInfo game={game} dispatch={dispatch}/>
+      <h1>{game.moveNr}</h1>
     </>
   )
 }

@@ -67,7 +67,7 @@ function Square({ row, col, game, handleClick, isRotated, dispatchClick }) {
             col={col}
             id={`${row}-${col}`}
             className={className}>
-            {/* {row}-{col} */}
+            {row}-{col}
             <Button
                 button={button}
                 row={row}

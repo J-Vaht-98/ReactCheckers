@@ -7,15 +7,16 @@ class Game{
      * 
      * @param {
      *  2DArray} board - the game state, to which the game initializes to
+     * @param {
+     *  Object} settings - set if AI opponent or local multiplayer
 
      */
-    constructor(board) {
+    constructor(board,settings) {
         this.playerScores = [0, 0];
         this.board = board;
         this.activePlayer = 1;
         this.opponentPlayer = 2;
-        
-        this.opponentAI = new AIPlayer(board,1)
+        this.opponentAI = new AIPlayer(this)
         this.moveFrom = [];
         this.movedPath = [];
         this.availableMoves = parsePlayerMoves(this.board,this.activePlayer,this.opponentPlayer)
@@ -27,6 +28,9 @@ class Game{
     }
     hasMoveFrom(){
         return this.moveFrom.length > 0
+    }
+    getActivePlayer(){
+        return this.activePlayer
     }
     setMove(row,col){
         if(this.isWinner) return false
