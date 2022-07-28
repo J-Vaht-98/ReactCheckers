@@ -7,3 +7,9 @@ export function countPlayerBtns(board,player) {
         }
     return buttonCount
 }
+export function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+}
+export function posToString(row,col){
+    return `${row}${col}`
+}

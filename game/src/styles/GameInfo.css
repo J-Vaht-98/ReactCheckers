@@ -1,10 +1,23 @@
 .scores-section{
     display: grid;
-    grid-template-rows: 2;
+    grid-template-rows: 50% 50%;
+    grid-template-columns: 80% 20%;
     width: 640px;
     margin-top: 10px;
     margin:0 auto;
 }
+.move-nr{
+    grid-row: 1/3;
+    grid-column: 2;
+    display: inline-flex;
+    align-items: flex-end;
+    justify-items: end;
+}
+.move-nr h1{
+    margin: auto;
+}
+
+
 .winner-banner{
     display: flex;
     justify-content: center;
@@ -33,12 +46,7 @@
     animation-iteration-count: infinite;
     animation-direction: alternate;
 }
-.bottom-right-corner-square{
-    border-bottom-right-radius: 18px;
-}
-.top-left-corner-square{
-    border-top-left-radius: 18px;
-}
+
 @keyframes flashing {
     from{
         opacity: 1;
