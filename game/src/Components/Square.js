@@ -1,28 +1,26 @@
 import React from "react";
 import Button from "./Button";
 import GhostButton from "./GhostButton";
-
+const checkIfHighlighted = (squares, row, col) => {
+    for (const i in squares) {
+        const square = squares[i].path[0];
+        if (square[0] == row && square[1] == col) {
+            return true;
+        }
+    }
+    return false;
+};
 function Square({ row, col, game, handleClick, isRotated, dispatchClick }) {
     let isSelected =
         game.hasMoveFrom() &&
         game.moveFrom[0] == row &&
         col == game.moveFrom[1];
-    const checkIfHighlighted = (squares, row, col) => {
-        for (const i in squares) {
-            const square = squares[i].path[0];
-            if (square[0] == row && square[1] == col) {
-                return true;
-            }
-        }
-        return false;
-    };
+    
     let isHighlighted = checkIfHighlighted(game.possibleSquares, row, col);
     const button = game.board[row][col];
     let className = "square ";
     if (row === 0 && col === 0) className += " top-left-corner-square";
     if (row === 7 && col === 7) className += " bottom-right-corner-square";
-    // isHighlighted ? className += "highlight" : className += ""
-    // isSelected ? className += ' selected':className += ''
     let buttonStyle = {}; //game.activePlayer !== Math.abs(button) ? {opacity:"0.7"}: {}
     if (row % 2 === 0 && col % 2 === 0) {
         className += " black";
@@ -50,7 +48,7 @@ function Square({ row, col, game, handleClick, isRotated, dispatchClick }) {
         }
     };
     const buttonHandleClick = (e) => {
-        if (game.activePlayer === Math.abs(button))
+        if (game.activePlayer === Math.abs(button) && game.availableMoves[`${row}${col}`] !== undefined)
             dispatchClick({
                 type: "buttonClicked",
                 payload: {
@@ -67,7 +65,7 @@ function Square({ row, col, game, handleClick, isRotated, dispatchClick }) {
             col={col}
             id={`${row}-${col}`}
             className={className}>
-            {row}-{col}
+            {/* {row}-{col} */}
             <Button
                 button={button}
                 row={row}

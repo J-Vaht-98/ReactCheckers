@@ -1,8 +1,11 @@
 import Square from "./Square";
 import "../styles/Board.css";
+import useDeepCompareEffect from "use-deep-compare-effect";
+import { useState } from "react";
 
 function Board({ game, dispatchClick }) {
-    const board = game.board;
+    const [board, setBoard] = useState(game.board)
+
     if (game === undefined) return <></>;
     return (
         <div className="game-container">

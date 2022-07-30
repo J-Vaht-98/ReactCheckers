@@ -10,14 +10,39 @@ import {
 } from "react-router-dom";
 import Login from './Pages/Login/Login';
 import NotFound from './Pages/NotFound';
+import Game from './Game/Game';
+const gameState = [
+  [2,0,2,0,2,0,2,0],
+  [0,2,0,2,0,2,0,2],
+  [2,0,2,0,2,0,2,0],
+  [0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0],
+  [0,1,0,1,0,1,0,1],
+  [1,0,1,0,1,0,1,0],
+  [0,1,0,1,0,1,0,1],
+]
+const gameState2 = [ //this just a dummy gamestate for debugging
+  // [0,0,0,0,0,0,0,0],
+  [2,0,0,0,0,0,0,0],
+  [0,1,0,0,0,0,0,0],
+  [0,0,1,0,0,0,0,0],
+  [0,0,0,1,0,0,0,0],
+  [0,0,1,0,0,0,0,0],
+  [0,0,0,1,0,1,0,0],
+  [0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0],
+]
 
 
+const game = new Game(gameState,{
+  aiPlayerEnabled:true
+}) 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter>
       <Routes>
       <Route path="/" element={<Login />} />
-      <Route path="/play" element={<App />} />
+      <Route path="/play" element={<App game={game} />} />
       <Route path='*' element={<NotFound />}/>
       </Routes>
   </BrowserRouter>

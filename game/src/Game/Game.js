@@ -2,13 +2,25 @@ import * as utils from './Utils'
 import './AIplayer'
 import AIPlayer from './AIplayer';
 import {parsePlayerMoves,calculateMovedPath, parseButtonMoves} from './Logic'
-class Game{
+
+const filterFromMove = (availableMoves,key) =>{
+    const move = availableMoves[key]
+}
+const gK = (row,col)=>{ //get key
+    return `${row}${col}`
+}
+class Game {
     /**
      * 
      * @param {
      *  2DArray} board - the game state, to which the game initializes to
      * @param {
      *  Object} settings - set if AI opponent or local multiplayer
+     * 
+     * #TODO
+     * Setting for wheter you play ai or local multiplayer
+     * Should be able to move player 2 buttons while AI is moving
+     * AIPlayer has no moves left -> throws error
 
      */
     constructor(board,settings) {
@@ -16,15 +28,16 @@ class Game{
         this.board = board;
         this.activePlayer = 1;
         this.opponentPlayer = 2;
-        this.opponentAI = new AIPlayer(this)
+        this.AIPlayer = new AIPlayer(this.board,2,this.activePlayer)
         this.moveFrom = [];
-        this.movedPath = [];
         this.availableMoves = parsePlayerMoves(this.board,this.activePlayer,this.opponentPlayer)
         this.possibleSquares = []
-        
         this.isWinner = false;
         this.stateHistory = [this];
         this.moveNr = this.stateHistory.length;
+        this.Move = this.activePlayer === 2
+        
+        this.aiPlayerEnabled = settings.aiPlayerEnabled
     }
     hasMoveFrom(){
         return this.moveFrom.length > 0
@@ -33,22 +46,29 @@ class Game{
         return this.activePlayer
     }
     setMove(row,col){
+        row = parseInt(row)
+        col = parseInt(col)
         if(this.isWinner) return false
         const clickedElement = Math.abs(this.board[row][col])
         const hasMoveFrom = this.hasMoveFrom()
-        const isMoveableBtn = Object.keys(this.availableMoves).includes(`${row}${col}`)
+        const isMoveableBtn = Object.keys(this.availableMoves).includes(gK(row,col))
+        //Button selected
         if(isMoveableBtn && !hasMoveFrom){
-            this.moveFrom = `${row}${col}`
+            this.moveFrom = gK(row,col)
             this.possibleSquares = parseButtonMoves(this.board,row,col,this.opponentPlayer)
         }
-        else if(clickedElement === 0 && hasMoveFrom){
-            this.makeMove(this.moveFrom,`${row}${col}`)
+        //Square click
+        else if(clickedElement === 0 && hasMoveFrom && this.isInAvailableMoves(this.moveFrom,gK(row,col))){
+            this.makeMove(this.moveFrom,gK(row,col))
         }
+        //Button toggled
         else if(row == this.moveFrom[0] && col==this.moveFrom[1]){
             this.moveFrom = []
+            this.possibleSquares = []
         }
-        else if(clickedElement === this.activePlayer && hasMoveFrom){
-            this.moveFrom = `${row}${col}`
+        //Player chose a different button to move
+        else if(clickedElement === this.activePlayer && hasMoveFrom && isMoveableBtn){
+            this.moveFrom = gK(row,col)
             this.possibleSquares = parseButtonMoves(this.board,row,col,this.opponentPlayer)
         }
             
@@ -100,17 +120,17 @@ class Game{
     }
     makeMove(from,to){
         if(this.isWinner) return false
-        const fromRow = from[0]
-        const fromCol = from[1]
+        
+        const fromRow = parseInt(from[0])
+        const fromCol = parseInt(from[1])
         const toRow = parseInt(to[0])
         const toCol = parseInt(to[1])
         const button = this.board[fromRow][fromCol]
        
-        
         if(!this.isInAvailableMoves(from,to)) return false
         
-        
         this.pushToStateHistory(this.board);
+        
         this.board[toRow][toCol] = this.board[fromRow][fromCol]
         this.board[fromRow][fromCol] = 0
         
@@ -136,16 +156,54 @@ class Game{
         if(wasTake){
             this.playerScores[this.activePlayer-1]++
             //check for double take
-            isDoubleTake = parseButtonMoves(this.board,toRow,toCol,this.opponentPlayer).filter(move => move.isTake === true).length > 0
+            isDoubleTake = parseButtonMoves(this.board,toRow,toCol,this.opponentPlayer)
+            .filter(move => move.isTake === true).length > 0
         }
         this.checkWin()
         this.clearMove()
         if(isDoubleTake){
-            this.availableMoves = parsePlayerMoves(this.board,this.activePlayer,this.opponentPlayer)
-        }else{
+            this.initPlayerTurn()
+        }
+        else{
             this.toggleActivePlayer()
         }
+        this.dispatchEvent('move',[0,0]);
+            
         
+        
+        
+    }
+    dispatchEvent(type,detail){
+        /*Dispatches an event of type with detail:detail*/
+        /*Needed for AI to dispatch its own move events*/
+        const ev = new CustomEvent(type,{
+            bubbles:true,
+            cancelable:true,
+            detail:detail
+        })
+        document.dispatchEvent(ev)
+    }
+    async makeAIMove(){
+        this.availableMoves = parsePlayerMoves(this.board,2,1)
+        this.AIPlayer.updateMoves(this.availableMoves)
+        //Get move from
+        const moveFrom = await this.AIPlayer.getMoveFrom()
+        if(!moveFrom){
+            return
+        }
+        this.possibleSquares = parseButtonMoves(this.board,parseInt(moveFrom[0]),parseInt(moveFrom[1]),1)
+        this.moveFrom = moveFrom
+        this.dispatchEvent('aiMove',{
+            type:'buttonClicked',
+            row:moveFrom[0],
+            col:moveFrom[1]
+        }) 
+        const moveTo = await this.AIPlayer.getMoveTo()
+        this.dispatchEvent('aiMove',{
+            type:'squareClicked',
+            row:moveTo[0],
+            col:moveTo[1]
+        }) 
     }
     clearMove(){
         this.availableMoves = []
@@ -174,29 +232,30 @@ class Game{
         let player1HasMove = false
         let player2HasMove = false
         const board = this.board
-        // for(let row in board)
-        //     for(let col in board[row]){
-        //         row = parseInt(row)
-        //         col = parseInt(col)
-        //         if(!player1HasMove && Math.abs(board[row][col]) === 1){
-        //             if(this.calculateTakes([row,col]).length > 0 || this.calculateMoves([row,col]).length > 0){
-        //                 player1HasMove = true
-        //             }
-        //         }
-        //         else if(!player2HasMove && Math.abs(board[row][col]) === 2){
-        //             if(this.calculateTakes([row,col]).length > 0 || this.calculateMoves([row,col]).length > 0){
-        //                 player2HasMove = true
-        //             }
-        //         }
-        //     }
-        // if(!player1HasMove){
-        //     this.isWinner = 2
-        //     return true
-        // }
-        // if(!player2HasMove){
-        //     this.isWinner = 1
-        //     return true
-        // }
+        for(let row in board)
+            for(let col in board[row]){
+                row = parseInt(row)
+                col = parseInt(col)
+                if(!player1HasMove && Math.abs(board[row][col]) === 1){
+                    if(parseButtonMoves(this.board,row,col,2).length > 0){
+                        player1HasMove = true
+                    }
+                }
+                else if(!player2HasMove && Math.abs(board[row][col]) === 2){
+                    if(parseButtonMoves(this.board,row,col,1).length > 0){
+                        player2HasMove = true
+                    }
+                }
+            }
+        if(!player1HasMove){
+            this.isWinner = 2
+            return true
+        }
+        if(!player2HasMove){
+            this.isWinner = 1
+            return true
+        }
+        return false;
     }
     forfeit(){
         this.isWinner = this.opponentPlayer
@@ -228,7 +287,6 @@ class Game{
         
         this.opponentAI = new AIPlayer(board,1)
         this.moveFrom = [];
-        this.movedPath = [];
         this.availableMoves = parsePlayerMoves(this.board,1,2)
         this.possibleSquares = [];
         
@@ -236,11 +294,30 @@ class Game{
         this.stateHistory = [];
         this.moveNr = this.stateHistory.length;
     }
+    initPlayerTurn(){
+        if(this.activePlayer === 2){
+            this.moveFrom = []
+            this.availableMoves = parsePlayerMoves(this.board,2,1)
+            if(this.aiPlayerEnabled){
+                this.makeAIMove()
+            }
+            
+        }
+        else{
+            this.availableMoves = parsePlayerMoves(this.board,1,2)
+        }
+    }
     toggleActivePlayer() {
         if(this.activePlayer === 1){
             this.opponentPlayer = this.activePlayer
+            
+            //Player 2 turn start
             this.activePlayer = 2
+            if(this.aiPlayerEnabled){
+                this.makeAIMove()
+            }
             this.availableMoves = parsePlayerMoves(this.board,2,1)
+            
         }
         else{
             this.opponentPlayer = this.activePlayer

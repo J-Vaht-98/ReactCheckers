@@ -1,2 +1,5 @@
 # Local Netlify folder
 .netlify
+game/.vscode/launch.json
+game/TestCases.txt
+
