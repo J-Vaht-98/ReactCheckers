@@ -1,7 +1,6 @@
 import Board from './Components/Board'
 import './App.css'
-import {useEffect, useReducer, useRef, useState} from 'react'
-import Game from './Game/Game'
+import {useEffect, useReducer, useState} from 'react'
 import GameInfo from './Components/GameInfo'
 import cloneDeep from 'lodash/cloneDeep'
 
@@ -13,6 +12,9 @@ export function useForceUpdate(){
   // is better than directly setting `value + 1`
 }
 const actionElementClicked = (game,payload) =>{
+  if(payload.type === "square" && !game.hasMoveFrom()){
+    return game
+  }
   const row = payload?.row
   const col = payload?.col
   game.setMove(row,col)
@@ -30,6 +32,13 @@ const handleRedo = (game) =>{
   game.redo();
   return cloneDeep(game)
 }
+const handleAIChoosingMove=(game,payload)=>{
+  game.setMove(payload.row,payload.col)
+  return cloneDeep(game)
+}
+const handleAIMove=(game,payload)=>{
+  return cloneDeep(game)
+}
 function reducer(state, action){
   switch(action.type){
     case 'buttonClicked':
@@ -41,14 +50,21 @@ function reducer(state, action){
     case 'undo':
       return handleUndo(state) //not properly implemented
     case 'redo':
-      return handleRedo(state) //not properly implemented
+      return handleRedo(state)
+    case 'aiChoosingMove':
+      return handleAIChoosingMove(state,action.payload)
+    case 'aiMadeMove':
+      return handleAIMove(state,action.payload)
+    case 'move':
+      return cloneDeep(state)
     
     default:
-      throw new Error("Reducer action type is not defined")
+      throw new Error("Reducer action type is not defined: " + action.type)
   }
     
 }
-function App() {
+
+function App({game}) {
   /**
    * 
    *  Gamestate: 
@@ -58,33 +74,30 @@ function App() {
    *   -1 - player 1 king
    *   -2 - player 2 king
    */
-  const gameState = [
-    [2,0,2,0,2,0,2,0],
-    [0,2,0,2,0,2,0,2],
-    [2,0,2,0,2,0,2,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,1,0,1,0,1,0,1],
-    [1,0,1,0,1,0,1,0],
-    [0,1,0,1,0,1,0,1],
-  ]
-  const gameState2 = [ //this just a dummy gamestate for debugging
-    // [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,1,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,2,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,2,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-  ]
-  const g = new Game(gameState)
-  const [game, dispatch] = useReducer(reducer,g) 
+
+  const [state, dispatch] = useReducer(reducer,game) 
+  const handleAIEvent = (e) =>{
+    const type = e.detail.type
+    const row = parseInt(e.detail.row)
+    const col = parseInt(e.detail.col)
+    dispatch({type:type,payload:{
+      row:row,
+      col:col
+    }})
+    }
+    
+  
+  useEffect(()=>{
+    document.addEventListener('aiMove',handleAIEvent)
+    return ()=>{
+      document.removeEventListener('aiMove',handleAIEvent)
+    }
+  },[])
   return (
     <>
-      <Board game={game} dispatchClick={dispatch} />
-      <GameInfo game={game} dispatch={dispatch}/>
+      <Board game={state} dispatchClick={dispatch} />
+      <GameInfo game={state} dispatch={dispatch}/>
+      <h1>{state.moveNr}</h1>
     </>
   )
 }

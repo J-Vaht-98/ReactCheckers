@@ -1,6 +1,10 @@
+import { Checkbox } from '@mui/material';
+import { useEffect } from 'react';
 function NotFound() {
     return ( 
-        <h1>Not found. 404. </h1>
+        <>
+        <h1>404 page not Found</h1>
+        </>
      );
 }
 
