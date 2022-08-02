@@ -15,7 +15,7 @@ function Square({ row, col, game, handleClick, isRotated, dispatchClick }) {
         game.hasMoveFrom() &&
         game.moveFrom[0] == row &&
         col == game.moveFrom[1];
-    
+
     let isHighlighted = checkIfHighlighted(game.possibleSquares, row, col);
     const button = game.board[row][col];
     let className = "square ";
@@ -48,7 +48,13 @@ function Square({ row, col, game, handleClick, isRotated, dispatchClick }) {
         }
     };
     const buttonHandleClick = (e) => {
-        if (game.activePlayer === Math.abs(button) && game.availableMoves[`${row}${col}`] !== undefined)
+        //Trying to click ai buttons
+        if(game.aiPlayerEnabled && Math.abs(button) === game.AIPlayer.myButton)
+            return
+        if (
+            game.activePlayer === Math.abs(button) &&
+            game.availableMoves[`${row}${col}`] !== undefined           
+        )
             dispatchClick({
                 type: "buttonClicked",
                 payload: {
