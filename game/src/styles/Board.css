@@ -4,21 +4,18 @@
     --player2Color:#ff0000
     --blackSquareColor:#000000
 }
-#board{
-    margin:5px auto;
-    margin-top: 5%;
+.board{
     display: grid;
     grid-auto-flow: row;
-    min-width: 640px;
-    min-height: 640px;
     max-width: 640px;
-    grid-template-columns: repeat(8,80px);
-    grid-template-rows: repeat(8,80px);
+    width: 90%;
+    aspect-ratio: 1/1;
+    grid-template-columns: repeat(8,12.5%);
+    grid-template-rows: repeat(8,12.5%);
     border: 2px solid black;
     border-radius: 20px;
-
-    
 }
+
 .rotate-180{
     transform: rotateX(180deg);
 }
@@ -38,11 +35,6 @@
     to{
         transform: rotateX(360deg);
     }
-}
-.game-container{
-    display: grid;
-    width: fit-content;
-    margin: 5px auto;
 }
 .rotation-button{
     border: 2px solid black;

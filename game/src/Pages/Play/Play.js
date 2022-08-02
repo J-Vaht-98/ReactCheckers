@@ -4,10 +4,8 @@ import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Settings from './Components/Settings';
 import { useState } from "react";
-const theme = createTheme();
 
 function Play() {
     const gameState = [
@@ -40,11 +38,24 @@ function Play() {
       }
     }
     return (
-      <ThemeProvider theme={theme}>
-      <Container component="main" maxWidth="xs">
+      <>
         <CssBaseline />
-        {gameStarted ? <App game={new Game(gameState,settings.game)}/> :
+        {gameStarted ?
+      <Box 
+      sx={{
+        boxSizing:'content-box',
+        marginTop: 2,
+        display: "flex",
+        flexDirection:'column',
+        alignItems:'center',
+      }}
+      component="main" maxWidth="s">
+        <App game={new Game(gameState,settings.game)}/> 
+      </Box>
+        :
+        <Container component="main" maxWidth="xs">
           <Box
+          maxWidth='xs'
           sx={{
             mt:22,
             gap:4,
@@ -52,22 +63,21 @@ function Play() {
             flexDirection: 'column',
             alignItems: 'left',
           }}
-        >
+          >
             <Button
               variant="contained"
               sx={{
                 mt:1
               }}
               onClick={()=>setGameStarted(true)}
-            >Play single player</Button>
+              >Play single player</Button>
             <Settings setPlayComputer={setPlayComputer} />
-            
         </Box>
+        </Container>
         }
-      </Container>
-    </ThemeProvider>
+    </>
     );
-    }
+  }
     
 
 export default Play;

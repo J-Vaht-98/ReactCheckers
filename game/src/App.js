@@ -4,7 +4,6 @@ import {useEffect, useReducer, useState} from 'react'
 import GameInfo from './Components/GameInfo'
 import cloneDeep from 'lodash/cloneDeep'
 
-
 export function useForceUpdate(){
   const [value, setValue] = useState(0); // integer state
   return () => setValue(value => value + 1); // update state to force render
@@ -95,9 +94,11 @@ function App({game}) {
   },[])
   return (
     <>
-      <Board game={state} dispatchClick={dispatch} />
-      <GameInfo game={state} dispatch={dispatch}/>
+    
+    <Board game={state} dispatchClick={dispatch} />
+    <GameInfo game={state} dispatch={dispatch}/>
     </>
+    
   )
 }
 

@@ -8,8 +8,7 @@ function Board({ game, dispatchClick }) {
 
     if (game === undefined) return <></>;
     return (
-        <div className="game-container">
-            <div id="board">
+            <div className="board">
                 {board.map((row, i) => {
                     return row.map((square, j) => {
                         return (
@@ -24,7 +23,6 @@ function Board({ game, dispatchClick }) {
                     });
                 })}
             </div>
-        </div>
     );
 }
 

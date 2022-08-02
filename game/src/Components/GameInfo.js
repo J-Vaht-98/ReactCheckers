@@ -1,53 +1,74 @@
-import "../styles/GameInfo.css";
-function ScoreBar({ N, emoji }) {
+import { Box, Button, Typography } from "@mui/material";
+
+function ScoreBar({ N, emoji = `✖` }) {
     const getDots = (N) => {
         let str = "  ";
         for (let i = 0; i < N; i++) str += " " + emoji;
         return str;
     };
-    return <>{getDots(N)}</>;
+    const score = getDots(N);
+
+    return <>{score}</>;
+}
+function PlayerScore({ playerScore, playerName }) {
+    return (
+        <>
+            <Typography
+             sx={{
+                m:1
+            }}
+             >
+                {playerName}
+                <ScoreBar N={playerScore} />
+            </Typography>
+            
+        </>
+    );
+}
+function WinBanner({ winner }) {
+    return (
+        <>
+            <Typography
+            sx={{
+                m:1
+            }}
+            component="h1">{winner} wins!</Typography>
+            <Button 
+            sx={{
+                mt:1
+            }}
+            variant="contained"
+            color="primary"
+            
+            onClick={()=>window.location = '/play'
+            }>New game</Button>
+        </>
+    );
 }
 
 function GameInfo({ game, dispatch }) {
-    const winner = game.isWinner
-    const activePlayer = game?.activePlayer;
-    const playerOneScore = game?.playerScores[0];
-    const playerTwoScore = game?.playerScores[1];
-    const flashingAnimation1 = activePlayer === 1 ? " flashing-animation" : " ";
-    const flashingAnimation2 = activePlayer === 2 ? " flashing-animation" : " ";
-    const extraMove = game.gainedExtraMove;
+    if (!game) return <></>;
+    const playerNames = game.nicknames || ["Player 1", "Player 2"];
+    const playerScores = game?.playerScores;
 
-    const scoresSection = (
-        <>
-            <span className={"player-score player-1" + flashingAnimation1}>
-                Player 1:<ScoreBar N={playerOneScore} emoji={`✖`} />
-            </span>
-            <span className={"player-score player-2" + flashingAnimation2}>
-                Player 2:<ScoreBar N={playerTwoScore} emoji={`✖`} />
-            </span>
-        </>
-    );
-    
-    const winBanner = (
-        <>
-            <span className={"winner-banner" + ` player-${winner}`}>
-                Player {winner} wins!
-            </span>
-            <button
-                className={"play-again-btn" + ` player-${winner}`}
-                onClick={() => dispatch({type:'newGame'})}>
-                Play again..
-            </button>
-        </>
-    );
     return (
-        <div className="scores-section">
-            {!winner && scoresSection}
-            {winner && winBanner}
-            <div className="move-nr">
-                <h1>{game.moveNr}</h1>
-            </div>
-        </div>
+        <Box
+            sx={{
+                display: "grid",
+                width: "90%",
+                maxWidth: "640px",
+                gridAutoFlow: "row",
+            }}>
+            {!game.isWinner && (
+                <>
+                {playerNames.map((name,i) => 
+                <PlayerScore key={`plr-score-${i}`} playerName={name} playerScore={playerScores[i]}/>)}
+                </>
+            )}
+            {game.isWinner && (
+                <WinBanner winner={playerNames[game.isWinner - 1]} />
+            )}
+        </Box>
     );
 }
 
