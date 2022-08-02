@@ -97,7 +97,6 @@ function App({game}) {
     <>
       <Board game={state} dispatchClick={dispatch} />
       <GameInfo game={state} dispatch={dispatch}/>
-      <h1>{state.moveNr}</h1>
     </>
   )
 }

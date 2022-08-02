@@ -23,9 +23,10 @@ class Game {
      * AIPlayer has no moves left -> throws error
 
      */
-    constructor(board,settings) {
+    constructor(board,settings={}) {
+        if(!board) return
         this.playerScores = [0, 0];
-        this.board = board;
+        this.board = board
         this.activePlayer = 1;
         this.opponentPlayer = 2;
         this.AIPlayer = new AIPlayer(this.board,2,this.activePlayer)
@@ -35,9 +36,7 @@ class Game {
         this.isWinner = false;
         this.stateHistory = [this];
         this.moveNr = this.stateHistory.length;
-        this.Move = this.activePlayer === 2
-        
-        this.aiPlayerEnabled = settings.aiPlayerEnabled
+        this.aiPlayerEnabled = settings?.playComputer
     }
     hasMoveFrom(){
         return this.moveFrom.length > 0
@@ -270,9 +269,9 @@ class Game {
         }})
         window.dispatchEvent(ev)
     }
-    init(board){
+    init(board,settings={}){
         this.playerScores = [0, 0];
-        this.board =[
+        this.board = board || [
             [2,0,2,0,2,0,2,0],
             [0,2,0,2,0,2,0,2],
             [2,0,2,0,2,0,2,0],
@@ -281,18 +280,17 @@ class Game {
             [0,1,0,1,0,1,0,1],
             [1,0,1,0,1,0,1,0],
             [0,1,0,1,0,1,0,1],
-          ]
+        ];
         this.activePlayer = 1;
         this.opponentPlayer = 2;
-        
-        this.opponentAI = new AIPlayer(board,1)
+        this.AIPlayer = new AIPlayer(this.board,2,this.activePlayer)
         this.moveFrom = [];
-        this.availableMoves = parsePlayerMoves(this.board,1,2)
-        this.possibleSquares = [];
-        
+        this.availableMoves = parsePlayerMoves(this.board,this.activePlayer,this.opponentPlayer)
+        this.possibleSquares = []
         this.isWinner = false;
-        this.stateHistory = [];
+        this.stateHistory = [this];
         this.moveNr = this.stateHistory.length;
+        this.aiPlayerEnabled = this.settings?.aiPlayerEnabled || true
     }
     initPlayerTurn(){
         if(this.activePlayer === 2){
