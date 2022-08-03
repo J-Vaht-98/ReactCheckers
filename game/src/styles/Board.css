@@ -57,11 +57,19 @@
     justify-content: center;
     align-items: center;
 }
+
+/*Corner squares */
 .bottom-right-corner-square{
     border-bottom-right-radius: 18px;
 }
 .top-left-corner-square{
     border-top-left-radius: 18px;
+}
+.top-right-corner-square{
+    border-top-right-radius: 18px;
+}
+.bottom-left-corner-square{
+    border-bottom-left-radius: 18px;
 }
 /*button thats selected should flash*/
 .selected div{

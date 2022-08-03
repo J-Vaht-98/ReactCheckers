@@ -1,4 +1,4 @@
-import React from "react";
+import React, { createContext } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
@@ -7,27 +7,27 @@ import Login from "./Pages/Login/Login";
 import NotFound from "./Pages/NotFound";
 import Play from "./Pages/Play/Play";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import {purple} from '@mui/material/colors'
+import { purple } from "@mui/material/colors";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const theme = createTheme({
-    palette:{
-        primary:{
-            main:purple[500]
-        }
+    palette: {
+        primary: {
+            main: purple[500],
+        },
     },
-    Square:{
-        blackSquare:purple[500]
-    }
-})
+    Square: {
+        blackSquare: purple[500],
+    },
+});
 root.render(
     <BrowserRouter>
         <ThemeProvider theme={theme}>
-            <Routes>
-                <Route path="/" element={<Login />} />
-                <Route path="/play" element={<Play />} />
-                <Route path="*" element={<NotFound />} />
-            </Routes>
+                <Routes>
+                    <Route path="/" element={<Login />} />
+                    <Route path="/play" element={<Play />} />
+                    <Route path="*" element={<NotFound />} />
+                </Routes>
         </ThemeProvider>
     </BrowserRouter>
 );
