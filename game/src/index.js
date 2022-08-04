@@ -1,4 +1,4 @@
-import React, { createContext } from "react";
+import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
@@ -8,6 +8,7 @@ import NotFound from "./Pages/NotFound";
 import Play from "./Pages/Play/Play";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { purple } from "@mui/material/colors";
+
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const theme = createTheme({
@@ -20,6 +21,8 @@ const theme = createTheme({
         blackSquare: purple[500],
     },
 });
+
+
 root.render(
     <BrowserRouter>
         <ThemeProvider theme={theme}>

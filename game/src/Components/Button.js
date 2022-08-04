@@ -1,5 +1,5 @@
 import { useContext } from "react"
-import { CustomColors } from "../Pages/Play/Play"
+import { GameSettings } from "../Pages/Play/Play"
 
 const checkIfButtonAvailable = (moves,row,col) =>{
     return moves[`${row}${col}`] !== undefined
@@ -8,7 +8,7 @@ const checkIsSelected = (game, row,col)=>{
     return game.moveFrom == `${row}${col}`
 }
 function Button({button,row,col,game,clickHandler}) {
-    const btnColors = useContext(CustomColors).buttons.colors
+    const btnColors = useContext(GameSettings).style.buttons.colors
     if(button === 0) return <></>
     
     const buttonColor = btnColors[Math.abs(button) - 1]

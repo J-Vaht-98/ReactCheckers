@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import Button from "./Button";
 import GhostButton from "./GhostButton";
-import { CustomColors } from "../Pages/Play/Play";
+import { GameSettings } from "../Pages/Play/Play";
 const checkIfHighlighted = (squares, row, col) => {
     for (const i in squares) {
         const square = squares[i].path[0];
@@ -11,7 +11,8 @@ const checkIfHighlighted = (squares, row, col) => {
     }
     return false;
 };
-function Square({ row, col, game, handleClick, isRotated, dispatchClick }) {
+const fallBackColor = "rgba(0,0,0,0.7)" //if no square colors are specified
+function Square({ row, col, game, dispatchClick }) {
     let isSelected =
         game.hasMoveFrom() &&
         game.moveFrom[0] == row &&
@@ -24,15 +25,15 @@ function Square({ row, col, game, handleClick, isRotated, dispatchClick }) {
     if (row === 7 && col === 7) className += " bottom-right-corner-square";
     if (row === 0 && col === 7) className += " top-right-corner-square";
     if (row === 7 && col === 0) className += " bottom-left-corner-square";
-    const colors = useContext(CustomColors)
+    const colors = useContext(GameSettings).style
     let squareColor = null;
     if (row % 2 === 0 && col % 2 === 0) {
-        squareColor = colors.blackSquare
+        squareColor = colors.blackSquare || fallBackColor
     }
     if (row % 2 === 1 && col % 2 === 1) {
-        squareColor = colors.blackSquare
+        squareColor = colors.blackSquare || fallBackColor
     }
-    if(!squareColor) squareColor = colors.whiteSquare
+    if(!squareColor) squareColor = colors.whiteSquare || "none"
 
     const squareHandleClick = (e) => {
         //Conditionally emit this event only if black square with no button and a moveable btn is selected

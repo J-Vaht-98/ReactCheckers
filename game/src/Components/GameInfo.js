@@ -1,4 +1,6 @@
 import { Box, Button, Typography } from "@mui/material";
+import { useContext } from "react";
+import { GameSettings } from "../Pages/Play/Play";
 
 function ScoreBar({ N, emoji = `✖` }) {
     const getDots = (N) => {
@@ -10,18 +12,17 @@ function ScoreBar({ N, emoji = `✖` }) {
 
     return <>{score}</>;
 }
-function PlayerScore({ playerScore, playerName }) {
+function PlayerScore({ playerScore, playerName,color }) {
     return (
         <>
             <Typography
              sx={{
-                m:1
+                m:1,
             }}
              >
                 {playerName}
-                <ScoreBar N={playerScore} />
             </Typography>
-            
+            <Typography sx={{color:color}}><ScoreBar N={playerScore} /></Typography>
         </>
     );
 }
@@ -47,10 +48,11 @@ function WinBanner({ winner }) {
 }
 
 function GameInfo({ game, dispatch }) {
+    const colors = useContext(GameSettings)?.style.buttons.colors;
     if (!game) return <></>;
     const playerNames = game.nicknames || ["Player 1", "Player 2"];
     const playerScores = game?.playerScores;
-
+    
     return (
         <Box
             sx={{
@@ -62,7 +64,7 @@ function GameInfo({ game, dispatch }) {
             {!game.isWinner && (
                 <>
                 {playerNames.map((name,i) => 
-                <PlayerScore key={`plr-score-${i}`} playerName={name} playerScore={playerScores[i]}/>)}
+                <PlayerScore key={`plr-score-${i}`} color={colors[i]} playerName={name} playerScore={playerScores[i]}/>)}
                 </>
             )}
             {game.isWinner && (
