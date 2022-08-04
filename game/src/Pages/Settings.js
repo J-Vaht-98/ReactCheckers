@@ -26,7 +26,7 @@ function Settings(props) {
     const handleSaveSettings = ()=>{
         window.localStorage.setItem("checkersTheme",JSON.stringify(props.state))
     }
-    const [revert, setRevert] = useState(false);
+    const [save, setsave] = useState(false);
     return (
         <>
             <Container maxWidth="xs">
@@ -103,23 +103,23 @@ function Settings(props) {
                 >
                     <Button
                         onClick={() => {
-                            if(revert){
-                                revertState()
-                                setRevert(false)
+                            if(save){
+                                handleSaveSettings()
+                                setsave(false)
                             }
                             else
-                                setRevert(true);
+                                setsave(true);
                             
                         }}
-                        color={revert? "error":undefined}
+                        color={save? "error":undefined}
                         sx={{
                             float: "left",
                         }}>
-                        Revert Settings
+                        save Settings
                     </Button>
-                    {revert && <Button
+                    {save && <Button
                         onClick={()=>{
-                            setRevert(false)
+                            setsave(false)
                         }}
                         sx={{
                             float: "right",
@@ -128,11 +128,11 @@ function Settings(props) {
                     </Button>}
                     <Button
                         sx={{
-                            float:'left'
+                            float:'right'
                         }}
-                        onClick={()=>handleSaveSettings()}
+                        onClick={()=> revertState()}
                     >
-                        Save Settings
+                        Revert settings
                     </Button>
                     <Button
                         color="error"
