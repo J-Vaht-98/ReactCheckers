@@ -37,6 +37,7 @@ function Square({ row, col, game, dispatchClick }) {
 
     const squareHandleClick = (e) => {
         //Conditionally emit this event only if black square with no button and a moveable btn is selected
+        e.preventDefault()
         if (
             game.moveFrom &&
             !button &&
@@ -69,12 +70,23 @@ function Square({ row, col, game, dispatchClick }) {
                 },
             });
     };
-    
+    let style = {
+        background:squareColor,
+    }
     return (
         <div
-            style={{
-                background:squareColor
+            onDrop={squareHandleClick}
+            onDragOver={(e)=>{
+                if(isHighlighted){
+                    e.preventDefault()
+                }
             }}
+            onDragLeave={(e)=>{
+                if(isHighlighted){
+                    e.preventDefault()
+                }
+            }}
+            style={style}
             onClick={(e) => squareHandleClick(e)}
             row={row}
             col={col}
