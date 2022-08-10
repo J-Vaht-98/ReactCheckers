@@ -6,7 +6,8 @@ import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import { createContext, useState } from "react";
 import Settings from "../Settings";
-
+import Player from "../../Game/Player";
+import AIPlayer from "../../Game/AIplayer";
 //Used if no settings are found in localstorage
 
 export const GameSettings = createContext();
@@ -18,7 +19,7 @@ const fallBackSettings = {
         blackSquare: 'rgba(0,0,0,0.7)',
         whiteSquare: 'rgba(0,0,0,0)',
         buttons: {
-            colors: [ 'rgba(0,0,0,1)','rgba(255,0,0,1)'],
+            colors: [ 'rgba(0,0,0,1)','rgba(255,0,0,1)','rgba(0,255,0,1)','rgba(0,0,255,1)'],
         },
     }
 }
@@ -65,13 +66,20 @@ function Play() {
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
     ];
-    const defaultSettings = JSON.parse(window.localStorage.getItem('checkersTheme')) || fallBackSettings
+    const defaultSettings = fallBackSettings
     
     const [settings, setSettings] = useState(defaultSettings);
     const [gameStarted, setGameStarted] = useState(false);
     
     const handleNewGame = () =>{
         setGameStarted(true)
+    }
+    const getPlayers = ()=>{
+        console.log(settings)
+        if(settings.game.playComputer===true)
+            return [new Player(null,1,"up"),new AIPlayer(null,2,"down")]
+        else
+            return [new Player(null,1,"up"),new Player(null,2,"down")]
     }
     return (
         <>
@@ -88,7 +96,7 @@ function Play() {
                         }}
                         component="main"
                         maxWidth="s">
-                        <App game={new Game(gameState, settings.game)} />
+                        <App game={new Game(gameState,getPlayers())} />
                     </Box>
                 ) : (
                     <PageContainer>

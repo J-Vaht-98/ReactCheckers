@@ -5,19 +5,34 @@ import GameInfo from "./Components/GameInfo";
 import cloneDeep from "lodash/cloneDeep";
 import { GameSettings } from "./Pages/Play/Play";
 
-export function useForceUpdate() {
-    const [value, setValue] = useState(0); // integer state
-    return () => setValue((value) => value + 1); // update state to force render
-    // An function that increment 👆🏻 the previous state like here
-    // is better than directly setting `value + 1`
-}
 const actionElementClicked = (game, payload) => {
-    if (payload.type === "square" && !game.hasMoveFrom()) {
+    // console.log('action element clicked')
+    // return cloneDeep(game)
+    
+    if (game.winner !== false) {
         return game;
     }
     const row = payload?.row;
     const col = payload?.col;
-    game.setMove(row, col);
+    if(game.selectedPiece){
+        const selectedRow = parseInt(game.selectedPiece[0])
+        const selectedCol = parseInt(game.selectedPiece[1])
+        const selectedEl = Math.abs(game.board.board[row][col])
+        if(selectedCol === col && selectedRow === row){
+            game.clearMove()
+            return cloneDeep(game)
+        }
+        if(selectedEl === game.activePlayer.nr){
+            game.clearMove()
+            game.setSelectedPiece([row,col])
+            return cloneDeep(game)
+        }
+                
+        
+        game.makeMove([row,col])
+        return cloneDeep(game)
+    }
+    game.setSelectedPiece([row,col])
     return cloneDeep(game);
 };
 const makeNewGame = (game) => {
@@ -47,17 +62,8 @@ function reducer(state, action) {
             return actionElementClicked(state, action.payload);
         case "newGame":
             return makeNewGame(state);
-        case "undo":
-            return handleUndo(state); //not properly implemented
-        case "redo":
-            return handleRedo(state);
-        case "aiChoosingMove":
-            return handleAIChoosingMove(state, action.payload);
-        case "aiMadeMove":
-            return handleAIMove(state, action.payload);
         case "move":
             return cloneDeep(state);
-
         default:
             throw new Error(
                 "Reducer action type is not defined: " + action.type
@@ -66,40 +72,30 @@ function reducer(state, action) {
 }
 
 function App({ game }) {
-    /**
-     *
-     *  Gamestate:
-     *    0 - empty square
-     *    1 - player 1 button
-     *    2 - player 2 button
-     *   -1 - player 1 king
-     *   -2 - player 2 king
-     */
 
     const [state, dispatch] = useReducer(reducer, game);
-    const handleAIEvent = (e) => {
-        const type = e.detail.type;
-        const row = parseInt(e.detail.row);
-        const col = parseInt(e.detail.col);
-        dispatch({
-            type: type,
-            payload: {
-                row: row,
-                col: col,
-            },
-        });
-    };
-
-    useEffect(() => {
-        document.addEventListener("aiMove", handleAIEvent);
-        return () => {
-            document.removeEventListener("aiMove", handleAIEvent);
-        };
-    }, []);
+    const handleSquareSelect = (e)=>{
+            dispatch({type:'squareClicked',payload:{row:e.detail.pos[0],col:e.detail.pos[1]}})
+    }
+    const handlePieceSelect =(e)=>{
+        dispatch({type:'buttonClicked',payload:{row:e.detail.pos[0],col:e.detail.pos[1]}})
+    }
+    useEffect(()=>{
+        
+        document.addEventListener('pieceSelected',handlePieceSelect)
+        document.addEventListener('squareSelected',handleSquareSelect)
+        
+        return ()=>{
+            //clean up the listeners on unmount
+            document.removeEventListener('pieceSelected',handlePieceSelect)
+            document.removeEventListener('squareSelected',handleSquareSelect)
+        }
+    })
+    
     return (
-        <>
+        <>  
             <Board game={state} dispatchClick={dispatch} />
-            <GameInfo game={state} dispatch={dispatch} />
+            {/* <GameInfo game={state} dispatch={dispatch} /> */}
         </>
     );
 }

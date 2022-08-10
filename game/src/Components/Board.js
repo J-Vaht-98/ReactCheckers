@@ -3,8 +3,8 @@ import "../styles/Board.css";
 import useDeepCompareEffect from "use-deep-compare-effect";
 import { useState } from "react";
 
-function Board({ game, dispatchClick }) {
-    const [board, setBoard] = useState(game.board)
+function Board({ game, dispatchClick ,move, setMove}) {
+    const [board, setBoard] = useState(game.board.board)
 
     if (game === undefined) return <></>;
     return (
@@ -18,6 +18,8 @@ function Board({ game, dispatchClick }) {
                                 col={j}
                                 game={game}
                                 dispatchClick={dispatchClick}
+                                move={move}
+                                setMove={setMove}
                             />
                         );
                     });

@@ -1,13 +1,13 @@
 import { useContext } from "react";
 import { GameSettings } from "../Pages/Play/Play";
 
-const checkIfButtonAvailable = (moves, row, col) => {
-    return moves[`${row}${col}`] !== undefined;
+const checkIfSelectable = (availableMoves, row, col) => {
+    return availableMoves[`${row}${col}`] !== undefined
 };
 const checkIsSelected = (game, row, col) => {
-    return game.moveFrom == `${row}${col}`;
+    return game.selectedPiece === `${row}${col}`;
 };
-function Button({ button, row, col, game, clickHandler }) {
+function Button({ button, row, col, game, clickHandler, isSelected }) {
     const btnColors = useContext(GameSettings).style.buttons.colors;
     if (button === 0) return <></>;
 
@@ -16,8 +16,8 @@ function Button({ button, row, col, game, clickHandler }) {
         Math.abs(button) === game.activePlayer
             ? { border: "2px solid green" }
             : {};
-    let isAvailable = checkIfButtonAvailable(game.availableMoves, row, col);
-    isAvailable
+    let isSelectable = checkIfSelectable(game.availableMoves, row, col);
+    isSelectable
         ? (buttonStyle = { border: "pink 2px solid" })
         : (buttonStyle = {});
 
@@ -26,25 +26,36 @@ function Button({ button, row, col, game, clickHandler }) {
     
     
     const classNames = {
+        '-4': 'player-4 button king',
+        '-3': 'player-3 button king',
         '-2': 'player-2 button king',
         '-1': 'player-1 button king',
         '1': 'player-1 button ',
         '2': 'player-2 button ',
+        '3': 'player-3 button ',
+        '3': 'player-4 button ',
     }
     const child = button < 0 ? `👑` : ''
     return (
                 <div
-                    onClick={(e) => clickHandler(e)}
+                    onClick={(e) => {
+                        if(isSelectable){
+                            clickHandler(e) //so react updates
+                        }
+                            
+                    }}
                     onDragStart={(e) => {
-                        e.dataTransfer.setData('text',e.target.id)
-                        clickHandler(e)
+                        if(isSelectable){
+                            e.dataTransfer.setData('text',e.target.id)
+                            clickHandler(e)
+                        }
                     }}
                     key={row + "+" + col}
                     row={row}
                     col={col}
                     style={buttonStyle}
-                    className={classNames[button]}
-                    draggable
+                    className={'button'}
+                    draggable={isSelectable}
                     
                     >
                     {child}
