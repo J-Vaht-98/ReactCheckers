@@ -10,6 +10,7 @@ export default class Player {
             this.forcedTakes = game.settings.forcedTakes
         }
         this.loser = false
+        this.score = 0
         if (nr === 0) {
             throw Error(`Player nr cant equal empty square 0`);
         }

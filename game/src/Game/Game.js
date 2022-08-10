@@ -105,8 +105,10 @@ class Game{/**
             for( let i=0;i<this.selectedPieceMoves.length;i++){
                 const square = this.selectedPieceMoves[i].to
                 if(row === square.row && col === square.col){
-                    this.board.makeMove(this.selectedPieceMoves[i],this.activePlayer)
-                    const isDoubleTake = this.checkDoubleTake(this.selectedPieceMoves[i],row,col)
+                    const selectedMove = this.selectedPieceMoves[i]
+                    this.board.makeMove(selectedMove,this.activePlayer)
+                    if(selectedMove.hasOwnProperty('take')) this.activePlayer.score++
+                    const isDoubleTake = this.checkDoubleTake(selectedMove,row,col)
                     if(!isDoubleTake) this.changeActivePlayer()
                     else this.startTurn()
                     break

@@ -6,9 +6,6 @@ import cloneDeep from "lodash/cloneDeep";
 import { GameSettings } from "./Pages/Play/Play";
 
 const actionElementClicked = (game, payload) => {
-    // console.log('action element clicked')
-    // return cloneDeep(game)
-    
     if (game.winner !== false) {
         return game;
     }
@@ -95,7 +92,7 @@ function App({ game }) {
     return (
         <>  
             <Board game={state} dispatchClick={dispatch} />
-            {/* <GameInfo game={state} dispatch={dispatch} /> */}
+            <GameInfo game={state} dispatch={dispatch} />
         </>
     );
 }

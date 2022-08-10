@@ -51,7 +51,7 @@ function GameInfo({ game, dispatch }) {
     const colors = useContext(GameSettings)?.style.buttons.colors;
     if (!game) return <></>;
     const playerNames = game.nicknames || ["Player 1", "Player 2"];
-    const playerScores = game?.playerScores;
+    const playerScores = game.players.map((player)=>player.score)
     
     return (
         <Box
@@ -67,8 +67,8 @@ function GameInfo({ game, dispatch }) {
                 <PlayerScore key={`plr-score-${i}`} color={colors[i]} playerName={name} playerScore={playerScores[i]}/>)}
                 </>
             )}
-            {game.isWinner && (
-                <WinBanner winner={playerNames[game.isWinner - 1]} />
+            {game.winner && (
+                <WinBanner winner={playerNames[game.winner - 1]} />
             )}
         </Box>
     );
