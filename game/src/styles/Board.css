@@ -105,6 +105,8 @@
     width: 50%;
     height: 50%;
     border-radius: 20px;
+    align-items: center;
+    justify-content: center;
 }
 .clicked{
     background-color: aquamarine;
