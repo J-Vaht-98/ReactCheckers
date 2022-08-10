@@ -1,4 +1,4 @@
-import { Container, Switch, Typography, Box, Button } from "@mui/material";
+import { Container, Switch, Typography, Box, Button,Tooltip} from "@mui/material";
 import ColorPicker from "../Components/UI-Components/ColorPicker";
 import { useState } from "react";
 
@@ -46,6 +46,26 @@ function Settings(props) {
                         onChange={(e) => {
                             let state = { ...props.state };
                             state.game.playComputer = e.target.checked;
+                            props.setState(state);
+                        }}
+                    />
+                </OptionBox>
+                <OptionBox
+                    sx={{
+                        display: "flex",
+                        width: "100%",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                    }}>
+                    <Typography variant="button" color="primary">
+                        Forced takes
+                    </Typography>
+                    <Switch
+                        sx={{ alignSelf: "right" }}
+                        checked={props.state.game.forcedTakes}
+                        onChange={(e) => {
+                            let state = { ...props.state };
+                            state.game.forcedTakes = e.target.checked;
                             props.setState(state);
                         }}
                     />
@@ -101,6 +121,10 @@ function Settings(props) {
                         mt:2
                     }}
                 >
+                    <Tooltip
+                        title="Save settings so you dont have to set them again!"
+                        placement="bottom"
+                    >
                     <Button
                         onClick={() => {
                             if(save){
@@ -117,6 +141,7 @@ function Settings(props) {
                         }}>
                         save Settings
                     </Button>
+                    </Tooltip>
                     {save && <Button
                         onClick={()=>{
                             setsave(false)
@@ -126,14 +151,16 @@ function Settings(props) {
                         }}>
                         Cancel
                     </Button>}
-                    <Button
-                        sx={{
-                            float:'right'
-                        }}
-                        onClick={()=> revertState()}
-                    >
-                        Revert settings
-                    </Button>
+                    <Tooltip title="Reverts to latest saved settings" placement="bottom">
+                        <Button
+                            sx={{
+                                float:'right'
+                            }}
+                            onClick={()=> revertState()}
+                        >
+                            Revert settings
+                        </Button>
+                    </Tooltip>
                     <Button
                         color="error"
                         variant="contained"

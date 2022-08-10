@@ -14,6 +14,7 @@ export const GameSettings = createContext();
 const fallBackSettings = {
     game:{
         playComputer: true,
+        forcedTakes : true,
     },
     style:{
         blackSquare: 'rgba(0,0,0,0.7)',
@@ -96,7 +97,7 @@ function Play() {
                         }}
                         component="main"
                         maxWidth="s">
-                        <App game={new Game(gameState,getPlayers())} />
+                        <App game={new Game(gameState,getPlayers(),settings.game)} />
                     </Box>
                 ) : (
                     <PageContainer>

@@ -7,7 +7,7 @@ export default class Player {
             this.game = game
             this.game.board.directionMap[nr] = moveDirection
             this.board = game.board.board
-            this.forcedMoves = game.settings.forcedMoves
+            this.forcedTakes = game.settings.forcedTakes
         }
         this.loser = false
         if (nr === 0) {
@@ -42,8 +42,6 @@ export default class Player {
         this.getMoves()
         if(Object.keys(this.availableMoves).length === 0)
             this.loser = true
-        //here if forced moves, need to filter every move that doesnt have a take property
-        //if the resulting array is empty return the original array
     }
     getMoves(){
         const playerButtons = this.getButtonPositions();
@@ -62,7 +60,7 @@ export default class Player {
                 }
             }
         });
-        if(this.forcedMoves){
+        if(this.forcedTakes){
             if(Object.keys(takes).length > 0){
                 this.availableMoves = takes
                 return takes
@@ -80,7 +78,7 @@ export default class Player {
         this.game = game
         this.game.board.directionMap[this.nr] = this.moveDirection
         this.board = game.board.board
-        this.forcedMoves = game.settings.forcedMoves
+        this.forcedTakes = game.settings.forcedTakes
     }
 }
 

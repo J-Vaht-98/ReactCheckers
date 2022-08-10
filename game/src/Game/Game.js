@@ -44,15 +44,14 @@ class Game{/**
  * @param {State of the initial board} boardState 
  * @param {Array of player objects} players 
  */
-    constructor(boardState,players){
-        console.log('new game')
-        this.settings = {
-            forcedMoves:true
+    constructor(boardState,players,settings){
+        console.log('new game',settings)
+        this.settings = settings || {
+            forcedTakes:true
         }
         this.board = new Board(boardState)
         this.players = this.initPlayers(players)
         
-        console.log(players)
         this.activePlayerIndex = 0
         this.activePlayer = this.players[this.activePlayerIndex]
         this.startTurn()
