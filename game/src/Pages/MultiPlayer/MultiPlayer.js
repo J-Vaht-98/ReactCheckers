@@ -5,6 +5,7 @@ import App from '../../App';
 import { GameSettings } from '../Play/Play';
 import cloneDeep from "lodash/cloneDeep";
 import MultiPlayerGame from '../../Game/MultiplayerGame';
+import BackButton from '../../Components/UI-Components/BackButton';
 const url = 'http://localhost:8080';
 const socket = io(url,{
   path:'/play/',
@@ -21,7 +22,6 @@ function MultiPlayer() {
     nrOfPlayers:2,
     forcedTakes:true,
   })
-  const [text,setText] = useState('aa')
   const fallBackSettings = {
     game:{
         playComputer: true,
@@ -62,12 +62,10 @@ function MultiPlayer() {
     socket.on('gameID',gameID => handleGameID(gameID))
     socket.on('gameState',gameState => handleGameState(gameState))
     socket.on('error', errorMsg=>console.log(errorMsg))
-    socket.on('textChange',text => setText(text))
     return ()=>{
       socket.off('gameID')
       socket.off('gameState')
       socket.off('error')
-      socket.off('textChange')
     }
   })
   const emitGameState = (gameState)=>{
@@ -95,21 +93,9 @@ function MultiPlayer() {
       <Button
        onClick={()=>{handleJoinGame()}}
       >Join Game</Button>
-      <Button
-      onClick={()=>{
-        socket.emit("gameState",gameState)
-      }}>GS</Button>
       <TextField onChange={(e)=>setGameID(e.target.value)} />
       {gameStarted && <App game={game} />}
-      <textarea
-        onChange={(e)=>{
-          setText(e.target.value)
-          socket.emit("textChanged",gameID,e.target.value)
-        }}
-        value={text}
-      >
-      
-      </textarea>
+      <BackButton/>
     </Box>
     </GameSettings.Provider>
    );

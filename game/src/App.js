@@ -23,8 +23,6 @@ function actionElementClicked(game, payload){
             game.setSelectedPiece([row,col])
             return cloneDeep(game)
         }
-                
-        
         game.makeMove([row,col])
         return cloneDeep(game)
     }

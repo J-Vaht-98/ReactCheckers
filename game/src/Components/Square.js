@@ -38,6 +38,9 @@ function Square({ row, col, game, dispatchClick}) {
     const squareHandleClick = (e) => {
         // Conditionally emit this event only if black square with no button and a moveable btn is selected
         e.preventDefault()
+        //Cant click if its not a real players turn (not AI or Remote)
+        if(game.activePlayer.type !== "player")
+            return
         if(isBlack && button === 0){
             const ev = new CustomEvent('squareSelected',{detail:{
                 pos:[row,col]
@@ -46,6 +49,9 @@ function Square({ row, col, game, dispatchClick}) {
         }
     };
     const buttonHandleClick = (e) => {
+        //Cant click if its not a real players turn (not AI or Remote)
+        if(game.activePlayer.type !== "player")
+            return
         const ev = new CustomEvent('pieceSelected',{detail:{
             pos:[row,col]
         }})

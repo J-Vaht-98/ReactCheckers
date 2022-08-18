@@ -8,7 +8,7 @@ import NotFound from "./Pages/NotFound";
 import Play from "./Pages/Play/Play";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { purple } from "@mui/material/colors";
-import Settings from "./Pages/Settings";
+import SettingsPage from "./Pages/Settings/SettingsPage"
 import MultiPlayer from "./Pages/MultiPlayer/MultiPlayer";
 
 
@@ -31,7 +31,7 @@ root.render(
                 <Routes>
                     <Route path="/" element={<Login />} />
                     <Route path="/play" element={<Play />} />
-                    <Route path="/settings" element={<Settings/>} />
+                    <Route path="/settings" element={<SettingsPage />} />
                     <Route path="/multiplayer" element={<MultiPlayer />}/>
                     <Route path="*" element={<NotFound />} />
                 </Routes>

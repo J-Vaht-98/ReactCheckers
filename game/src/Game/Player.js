@@ -11,6 +11,7 @@ export default class Player {
         }
         this.loser = false
         this.score = 0
+        this.type = "player"
         if (nr === 0) {
             throw Error(`Player nr cant equal empty square 0`);
         }
