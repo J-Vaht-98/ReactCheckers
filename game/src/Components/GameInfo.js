@@ -41,7 +41,7 @@ function WinBanner({ winner }) {
             variant="contained"
             color="primary"
             
-            onClick={()=>window.location = '/play'
+            onClick={()=>window.location = '/'
             }>New game</Button>
         </>
     );

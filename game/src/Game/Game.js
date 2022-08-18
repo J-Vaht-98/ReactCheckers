@@ -45,7 +45,6 @@ class Game{/**
  * @param {Array of player objects} players 
  */
     constructor(boardState,players,settings){
-        console.log('new game',settings)
         this.settings = settings || {
             forcedTakes:true
         }
@@ -67,14 +66,16 @@ class Game{/**
     }
     changeActivePlayer(){
         if(!this.winner){
-        this.checkPlayerButtons()
-        this.clearMove()
-        this.setIndex()
+            this.checkPlayerButtons()
+            this.clearMove()
+            this.setIndex()
+            
         this.activePlayer = this.players[this.activePlayerIndex]
         if(this.activePlayer.loser === true){
             this.changeActivePlayer() //skip players who have already lost (no buttons left)
         }
         this.startTurn()
+        this.emitState()
         
         }else{
             this.clearMove()
@@ -100,6 +101,9 @@ class Game{/**
             this.selectedPieceMoves = this.availableMoves[`${row}${col}`]
         }
     }
+    emitState(){ //Overridden in MultiplayerGame
+        return null;
+    }
     makeMove([row,col]){
         if(this.selectedPieceMoves){
             for( let i=0;i<this.selectedPieceMoves.length;i++){
@@ -111,6 +115,7 @@ class Game{/**
                     const isDoubleTake = this.checkDoubleTake(selectedMove,row,col)
                     if(!isDoubleTake) this.changeActivePlayer()
                     else this.startTurn()
+                    
                     break
                 }
             }

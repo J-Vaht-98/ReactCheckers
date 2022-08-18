@@ -9,6 +9,7 @@ import Play from "./Pages/Play/Play";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { purple } from "@mui/material/colors";
 import Settings from "./Pages/Settings";
+import MultiPlayer from "./Pages/MultiPlayer/MultiPlayer";
 
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
@@ -31,6 +32,7 @@ root.render(
                     <Route path="/" element={<Login />} />
                     <Route path="/play" element={<Play />} />
                     <Route path="/settings" element={<Settings/>} />
+                    <Route path="/multiplayer" element={<MultiPlayer />}/>
                     <Route path="*" element={<NotFound />} />
                 </Routes>
         </ThemeProvider>
