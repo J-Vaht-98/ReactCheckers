@@ -5,10 +5,10 @@ import Square from "./Square";
 
 interface BoardProps {
   // game: GameInterface;
-  board: number[][];
-  dispatchClick: () => {};
-  move: any;
-  setMove: any;
+  // board: number[][];
+  // dispatchClick: () => {};
+  // move: any;
+  // setMove: any;
 }
 
 const Board: FC<BoardProps> = () => {

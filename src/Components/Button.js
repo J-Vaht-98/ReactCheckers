@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { GameSettings } from "../Pages/Play/Play";
-import { selectFromPos } from "../slices/gameSlice";
+import { gameActions } from "../slices/gameSlice";
 import { useAppDispatch, useAppSelector } from "../store";
 
 function Button({ row, col }) {
@@ -46,7 +46,7 @@ function Button({ row, col }) {
     <div
       onClick={(e) => {
         if (isSelectable) {
-          dispatch(selectFromPos({ row, col }));
+          dispatch(gameActions.selectFromPos({ row, col }));
           // clickHandler(e); //so react updates
         }
       }}

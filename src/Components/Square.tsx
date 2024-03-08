@@ -1,7 +1,8 @@
 import { useContext } from "react";
 import { GameSettings } from "../Pages/Play/Play";
+import { gameActions } from "../slices/gameSlice";
 import { useIsHighlightedSquare } from "../slices/selectorHooks/boardSelectors";
-import { useAppSelector } from "../store";
+import { useAppDispatch, useAppSelector } from "../store";
 import { BoardPosition } from "../types/game.types";
 import Button from "./Button";
 import GhostButton from "./GhostButton";
@@ -12,6 +13,7 @@ function Square({ row, col }: BoardPosition) {
   const board = useAppSelector((state) => {
     return state.game.board;
   });
+  const dispatch = useAppDispatch();
   const isHighlighted = useIsHighlightedSquare({ row, col });
   // const button = game.board.board[row][col];
   let className = "square ";
@@ -76,6 +78,9 @@ function Square({ row, col }: BoardPosition) {
       style={style}
       // onClick={(e) => squareHandleClick(e)}
       className={className}
+      onClick={() => {
+        dispatch(gameActions.selectToPosition({ row, col }));
+      }}
     >
       {/* {row}-{col} */}
       <Button row={row} col={col} />
