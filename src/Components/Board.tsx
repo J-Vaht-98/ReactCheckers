@@ -16,7 +16,7 @@ const Board: FC<BoardProps> = () => {
     return state.game.board;
   });
   return (
-    <div className="board" style={{ margin: "50px auto" }}>
+    <div className="board">
       {board.map((row, i) => {
         return row.map((square, j) => {
           return <Square key={`${i}${j}`} row={i} col={j} />;

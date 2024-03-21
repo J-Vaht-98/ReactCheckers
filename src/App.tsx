@@ -1,9 +1,12 @@
 import { purple } from "@mui/material/colors";
-import { createTheme } from "@mui/material/styles";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { Provider } from "react-redux";
-import GameComponent from "./Components/GameComponent";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import "./App.css";
+import NotFound from "./Pages/NotFound";
+import Play from "./Pages/Play/Play";
+import SettingsPage from "./Pages/Settings/SettingsPage";
 import store from "./store";
-
 const theme = createTheme({
   palette: {
     primary: {
@@ -14,18 +17,16 @@ const theme = createTheme({
 const App = ({}) => {
   return (
     <Provider store={store}>
-      <GameComponent />
-      {/* <BrowserRouter>
+      {/* <GameComponent /> */}
+      <BrowserRouter>
         <ThemeProvider theme={theme}>
           <Routes>
-            <Route path="/" element={<Login />} />
-            <Route path="/play" element={<Play />} />
+            <Route path="/" element={<Play />} />
             <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/multiplayer" element={<MultiPlayer />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </ThemeProvider>
-      </BrowserRouter> */}
+      </BrowserRouter>
     </Provider>
   );
 };

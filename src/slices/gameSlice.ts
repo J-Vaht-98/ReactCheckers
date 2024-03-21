@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { defaultBoard } from "../Constants";
 import { Move, logic } from "../Game/logic2";
-import { BoardPosition, CheckersBoard } from "../types/game.types";
+import { BoardPosition, CheckersBoard, GameVariant } from "../types/game.types";
 import gameReducer from "./game.reducer";
 export interface IPlayer {
   pieceNr: number;
@@ -9,6 +9,8 @@ export interface IPlayer {
   score: number;
 }
 export interface GameState {
+  started: boolean;
+  variant?: GameVariant;
   board: CheckersBoard;
   selectedButton: BoardPosition | null;
   selectableButtons: BoardPosition[] | null;
@@ -21,6 +23,7 @@ const defaultPlayers: IPlayer[] = [
   { pieceNr: 2, moveDirection: "down", score: 0 },
 ];
 const initialState: GameState = {
+  started: false,
   board: defaultBoard,
   players: defaultPlayers,
   selectedButton: null,

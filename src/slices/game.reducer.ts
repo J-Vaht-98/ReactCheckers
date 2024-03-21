@@ -1,9 +1,12 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 import { logic } from "../Game/logic2";
-import { BoardPosition } from "../types/game.types";
+import { BoardPosition, GameVariant } from "../types/game.types";
 import { GameState } from "./gameSlice";
 import { positionsAreEqual } from "./utils";
-
+const startGame = (state: GameState, action: PayloadAction<GameVariant>) => {
+  state.started = true;
+  state.variant = action.payload;
+};
 const selectFromPos = (
   state: GameState,
   action: PayloadAction<BoardPosition>
@@ -83,4 +86,5 @@ export default {
   selectFromPos,
   setSelectableButtons,
   selectToPosition,
+  startGame,
 };

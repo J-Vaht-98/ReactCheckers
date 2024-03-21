@@ -10,9 +10,9 @@ const GameComponent: FC<GameComponentProps> = ({}) => {
   });
   const players = useAppSelector((state: RootState) => state.game.players);
   return (
-    <div style={{ display: "flex", margin: "40px" }}>
+    <div className="flex flex-col justify-center items-center">
       <Board />
-      <div>
+      <div className="min-w-[636px]">
         {players.map((player) => (
           <div>
             <h3>Piece: {player.pieceNr}</h3>

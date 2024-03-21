@@ -89,3 +89,4 @@ export interface ButtonInterface {
   board: CheckersBoard;
 }
 export type BoardPosition = { row: number; col: number };
+export type GameVariant = "local-mp" | "computer";
